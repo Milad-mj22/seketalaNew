@@ -664,7 +664,8 @@ def sepidar_download_excel(request):
 
                 print("error in empty factor check")
         if cancel:
-            continue
+            inv.discount = inv.total_price
+            # continue
         
         if empty_factor:
             continue
@@ -1234,6 +1235,11 @@ def tasvieh_sepidar_download_excel(request):
                 elif '[واريز به کارت ملي 1' in  inv.nahveh or  '[واريز به حساب ملي 1' in  inv.nahveh:
                     tafsil_bank,havale_bank = bank_vaset(int(32))    
                     today_payment = True
+
+                elif '[واريز به کارت ملي 9' in  inv.nahveh or  '[واريز به حساب ملي 9' in  inv.nahveh:
+                    tafsil_bank,havale_bank = bank_vaset(int(33))    
+                    today_payment = True
+
 
                 else:
                     error_factors.append(f'خطا در فاکتور :  {inv.invoice_number} , {inv.nahveh} در فاکتور ثبت شده')

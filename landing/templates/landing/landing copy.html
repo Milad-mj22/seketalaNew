@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>dorsa</title>
+    
+    <!-- فونت وزیر -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet" type="text/css" />
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        /* ===== تنظیمات پایه با فونت وزیر ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazir', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow-x: hidden;
+            line-height: 1.8;
+        }
+
+        :root {
+            --gold: #d4a847;
+            --gold-light: #f0d080;
+            --gold-dark: #b8922f;
+            --gold-glow: rgba(212, 168, 71, 0.3);
+            --dark: #0a0a0a;
+            --dark-card: #141414;
+            --text-light: #f5f5f5;
+            --text-gray: #aaaaaa;
+        }
+
+        /* ===== انیمیشن‌ها ===== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== هدر ===== */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(212, 168, 71, 0.15);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        .logo span { color: #ffffff; }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Vazir', sans-serif;
+        }
+
+        .btn-outline:hover {
+            background: var(--gold);
+            color: #0a0a0a;
+            transform: scale(1.05);
+        }
+
+        /* ===== هیرو ===== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 7rem 5% 4rem;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1208 50%, #0a0a0a 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(212, 168, 71, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: pulse-ring 4s ease-in-out infinite;
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            max-width: 1280px;
+            width: 100%;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-text {
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero-text .badge {
+            display: inline-block;
+            background: rgba(212, 168, 71, 0.15);
+            color: var(--gold);
+            padding: 0.3rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(212, 168, 71, 0.2);
+        }
+
+        .hero-text h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-text h1 .highlight {
+            color: var(--gold);
+            position: relative;
+        }
+
+        .hero-text h1 .highlight::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            right: 0;
+            left: 0;
+            height: 4px;
+            background: var(--gold);
+            border-radius: 2px;
+            opacity: 0.4;
+        }
+
+        .hero-text p {
+            font-size: 1.2rem;
+            color: var(--text-gray);
+            margin-bottom: 2.5rem;
+            max-width: 500px;
+        }
+
+        .hero-image .food-placeholder {
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 1/1;
+            background: linear-gradient(145deg, #1a1208, #2a1f0f);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid rgba(212, 168, 71, 0.2);
+            position: relative;
+            box-shadow: 0 30px 80px rgba(212, 168, 71, 0.1);
+        }
+
+        .hero-image .food-placeholder i {
+            font-size: 8rem;
+            color: var(--gold);
+            opacity: 0.6;
+        }
+
+        /* ===== دکمه CTA ===== */
+        .btn-primary {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: #0a0a0a;
+            padding: 1rem 3rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-family: 'Vazir', sans-serif;
+            box-shadow: 0 8px 30px rgba(212, 168, 71, 0.25);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 40px rgba(212, 168, 71, 0.4);
+        }
+
+        .btn-primary i {
+            margin-left: 0.5rem;
+        }
+
+        /* ===== بخش مزایا ===== */
+        .benefits {
+            padding: 5rem 5%;
+            background: var(--dark-card);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+        }
+
+        .section-title .gold {
+            color: var(--gold);
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .benefit-card {
+            background: #1a1a1a;
+            padding: 2.5rem 2rem;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid rgba(212, 168, 71, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(212, 168, 71, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .benefit-card i {
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .benefit-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .benefit-card p {
+            color: var(--text-gray);
+            font-size: 0.95rem;
+        }
+
+        /* ===== منوی خلاصه ===== */
+        .menu-preview {
+            padding: 5rem 5%;
+            background: #0a0a0a;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .menu-item {
+            background: var(--dark-card);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            border: 1px solid rgba(212, 168, 71, 0.05);
+        }
+
+        .menu-item:hover {
+            transform: translateY(-8px);
+            border-color: rgba(212, 168, 71, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .menu-item .image {
+            height: 200px;
+            background: linear-gradient(145deg, #1a1208, #2a1f0f);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: var(--gold);
+            opacity: 0.7;
+        }
+
+        .menu-item .info {
+            padding: 1.5rem;
+        }
+
+        .menu-item .info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .menu-item .info .price {
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+
+        .menu-item .info .desc {
+            color: var(--text-gray);
+            font-size: 0.85rem;
+            margin: 0.5rem 0;
+        }
+
+        .btn-order-small {
+            display: inline-block;
+            margin-top: 0.5rem;
+            color: var(--gold);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-order-small:hover {
+            color: var(--gold-light);
+            transform: translateX(5px);
+        }
+
+        /* ===== نظرات ===== */
+        .testimonials {
+            padding: 5rem 5%;
+            background: var(--dark-card);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .testimonial-card {
+            background: #1a1a1a;
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(212, 168, 71, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            border-color: rgba(212, 168, 71, 0.2);
+        }
+
+        .testimonial-card .stars {
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .testimonial-card p {
+            color: var(--text-gray);
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .testimonial-card .name {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        /* ===== فوتر ===== */
+        footer {
+            padding: 3rem 5%;
+            background: #050505;
+            border-top: 1px solid rgba(212, 168, 71, 0.1);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-content h4 {
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .footer-content p,
+        .footer-content a {
+            color: var(--text-gray);
+            text-decoration: none;
+            display: block;
+            margin: 0.3rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .footer-content a:hover {
+            color: var(--gold);
+        }
+
+        .footer-socials {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .footer-socials a {
+            font-size: 1.5rem;
+            color: var(--text-gray);
+            transition: all 0.3s ease;
+        }
+
+        .footer-socials a:hover {
+            color: var(--gold);
+            transform: translateY(-3px);
+        }
+
+        /* ===== دکمه شناور ===== */
+        .float-voice {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 999;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            border: none;
+            color: #0a0a0a;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(212, 168, 71, 0.35);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .float-voice:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 40px rgba(212, 168, 71, 0.5);
+        }
+
+        .float-voice .pulse-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid rgba(212, 168, 71, 0.3);
+            animation: pulse-ring 2s ease-out infinite;
+        }
+
+        /* ===== مودال ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: var(--dark-card);
+            border-radius: 30px;
+            padding: 2.5rem;
+            max-width: 550px;
+            width: 100%;
+            border: 1px solid rgba(212, 168, 71, 0.15);
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .modal-box h2 {
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-box .sub {
+            color: var(--text-gray);
+            margin-bottom: 2rem;
+        }
+
+        .voice-status {
+            background: #1a1a1a;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            border: 1px dashed rgba(212, 168, 71, 0.2);
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .voice-status .icon-big {
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .voice-status .text {
+            color: var(--text-gray);
+            font-size: 0.95rem;
+        }
+
+        .voice-status .text.success {
+            color: var(--gold);
+        }
+
+        .voice-status .text.error {
+            color: #ff6b6b;
+        }
+
+        .voice-status .transcript {
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 0.8rem 1.2rem;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Vazir', sans-serif;
+            min-width: 100px;
+        }
+
+        .btn-voice {
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: #0a0a0a;
+        }
+
+        .btn-voice:hover:not(:disabled) {
+            transform: scale(1.03);
+        }
+
+        .btn-voice:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-confirm {
+            background: var(--gold);
+            color: #0a0a0a;
+        }
+
+        .btn-confirm:hover:not(:disabled) {
+            transform: scale(1.03);
+        }
+
+        .btn-confirm:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-close-modal {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-gray);
+        }
+
+        .btn-close-modal:hover {
+            border-color: var(--gold);
+            color: #fff;
+        }
+
+        /* ===== وضعیت لودینگ ===== */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(212, 168, 71, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--gold);
+            animation: spin 0.8s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===== واکنش‌گرایی ===== */
+        @media (max-width: 1024px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-text p {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .hero-image .food-placeholder {
+                max-width: 350px;
+            }
+
+            .hero-text h1 {
+                font-size: 3rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .logo { font-size: 1.4rem; }
+            
+            .hero-text h1 {
+                font-size: 2.2rem;
+            }
+
+            .btn-primary {
+                padding: 0.8rem 2rem;
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+
+            .float-voice {
+                width: 60px;
+                height: 60px;
+                font-size: 1.6rem;
+            }
+
+            .modal-box {
+                padding: 1.5rem;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+            .modal-actions button {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-text h1 {
+                font-size: 1.8rem;
+            }
+
+            .hero-image .food-placeholder {
+                max-width: 250px;
+            }
+
+            .hero-image .food-placeholder i {
+                font-size: 5rem;
+            }
+
+            .benefits-grid,
+            .menu-grid,
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== هدر ===== -->
+    <header>
+        <a href="#" class="logo">سکه<span>طلا</span></a>
+        <div class="header-actions">
+            <button class="btn-outline">ورود</button>
+            <button class="btn-outline" style="background:var(--gold);color:#0a0a0a;">ثبت‌نام</button>
+        </div>
+    </header>
+
+    <!-- ===== هیرو ===== -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="badge">✨ طعم طلایی در هر لقمه</div>
+                <h1>
+                    سفارش <span class="highlight">طلایی</span><br>
+                    تحویل <span class="highlight">فوری</span>
+                </h1>
+                <p>
+                    با سکه طلا، بهترین فست‌فودهای شهر رو با کیفیت درجه‌یک و تحویل زیر ۲۰ دقیقه تجربه کن.
+                </p>
+                <a href="/menu" class="btn-primary">
+                    <i class="fas fa-shopping-bag"></i> ثبت سفارش آنلاین
+                </a>
+            </div>
+            <div class="hero-image">
+                <div class="food-placeholder">
+                    <i class="fas fa-utensils"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== مزایا ===== -->
+    <section class="benefits" id="benefits">
+        <h2 class="section-title">چرا <span class="gold">سکه طلا</span>؟</h2>
+        <div class="benefits-grid">
+            <div class="benefit-card animate-on-scroll">
+                <i class="fas fa-clock"></i>
+                <h3>تحویل زیر ۲۰ دقیقه</h3>
+                <p>گارانتی سرعت، یا پولت رو پس می‌گیری!</p>
+            </div>
+            <div class="benefit-card animate-on-scroll">
+                <i class="fas fa-crown"></i>
+                <h3>کیفیت طلایی</h3>
+                <p>مواد اولیه درجه‌یک و تازه‌ترین مواد</p>
+            </div>
+            <div class="benefit-card animate-on-scroll">
+                <i class="fas fa-fire"></i>
+                <h3>پخت لحظه‌ای</h3>
+                <p>سفارش تو، تازه آماده میشه، نه گرمایی!</p>
+            </div>
+            <div class="benefit-card animate-on-scroll">
+                <i class="fas fa-robot"></i>
+                <h3>دستیار هوشمند صوتی</h3>
+                <p>با OpenAI صحبت کن و سفارش بده</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== منو ===== -->
+    <section class="menu-preview" id="menu">
+        <h2 class="section-title">محبوب‌ترین <span class="gold">غذاها</span></h2>
+        <div class="menu-grid">
+            <div class="menu-item animate-on-scroll">
+                <div class="image"><i class="fas fa-hamburger"></i></div>
+                <div class="info">
+                    <h3>برگر طلایی</h3>
+                    <p class="desc">گوشت گوساله + پنیر چدار + سس مخصوص</p>
+                    <span class="price">۲۵۰,۰۰۰ تومان</span>
+                    <a href="/menu" class="btn-order-small">سفارش <i class="fas fa-arrow-left"></i></a>
+                </div>
+            </div>
+            <div class="menu-item animate-on-scroll">
+                <div class="image"><i class="fas fa-pizza-slice"></i></div>
+                <div class="info">
+                    <h3>پیتزا مخصوص</h3>
+                    <p class="desc">پپرونی + فلفل دلمه‌ای + پنیر موتزارلا</p>
+                    <span class="price">۳۸۰,۰۰۰ تومان</span>
+                    <a href="/menu" class="btn-order-small">سفارش <i class="fas fa-arrow-left"></i></a>
+                </div>
+            </div>
+            <div class="menu-item animate-on-scroll">
+                <div class="image"><i class="fas fa-drumstick-bite"></i></div>
+                <div class="info">
+                    <h3>ساندویچ مرغ</h3>
+                    <p class="desc">فیله مرغ سوخاری + سس سیر + کاهو</p>
+                    <span class="price">۱۹۰,۰۰۰ تومان</span>
+                    <a href="/menu" class="btn-order-small">سفارش <i class="fas fa-arrow-left"></i></a>
+                </div>
+            </div>
+            <div class="menu-item animate-on-scroll">
+                <div class="image"><i class="fas fa-french-fries"></i></div>
+                <div class="info">
+                    <h3>سیب‌زمینی ویژه</h3>
+                    <p class="desc">با پنیر پارمزان و سس مخصوص</p>
+                    <span class="price">۱۲۰,۰۰۰ تومان</span>
+                    <a href="/menu" class="btn-order-small">سفارش <i class="fas fa-arrow-left"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== نظرات ===== -->
+    <section class="testimonials" id="testimonials">
+        <h2 class="section-title">نظر <span class="gold">مشتریان</span></h2>
+        <div class="testimonials-grid">
+            <div class="testimonial-card animate-on-scroll">
+                <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                <p>"بهترین برگری که تا حالا خوردم! طعمش واقعاً طلایی بود."</p>
+                <span class="name">— علی رضایی</span>
+            </div>
+            <div class="testimonial-card animate-on-scroll">
+                <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                <p>"خیلی سریع رسید و کیفیتش عالی بود. دستیار صوتی OpenAI هم خیلی باحاله!"</p>
+                <span class="name">— سارا محمدی</span>
+            </div>
+            <div class="testimonial-card animate-on-scroll">
+                <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                <p>"منو متنوع، قیمت منصفانه، و طعم بی‌نظیر. حتماً دوباره سفارش می‌دم."</p>
+                <span class="name">— احمد کریمی</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== فوتر ===== -->
+    <footer>
+        <div class="footer-content">
+            <div>
+                <h4>سکه طلا</h4>
+                <p>فست‌فودی با کیفیت طلایی</p>
+                <div class="footer-socials">
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-telegram"></i></a>
+                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div>
+                <h4>تماس</h4>
+                <p>۰۲۱-۱۲۳۴۵۶۷۸</p>
+                <p>تهران، خیابان ولیعصر، پلاک ۴۵</p>
+            </div>
+            <div>
+                <h4>ساعت کاری</h4>
+                <p>همه روزه ۱۰:۰۰ تا ۲۳:۰۰</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== دکمه شناور ===== -->
+    <button class="float-voice" id="voiceFloatBtn" aria-label="دستیار صوتی هوشمند">
+        <span class="pulse-ring"></span>
+        <i class="fas fa-microphone"></i>
+    </button>
+
+    <!-- ===== مودال ===== -->
+    <div class="modal-overlay" id="voiceModal">
+        <div class="modal-box">
+            <h2><i class="fas fa-robot" style="color:var(--gold);margin-left:0.5rem;"></i> دستیار هوشمند صوتی</h2>
+            <p class="sub">با OpenAI صحبت کن، سفارشت رو ثبت کن</p>
+
+            <div class="voice-status" id="voiceStatus">
+                <div class="icon-big"><i class="fas fa-microphone-slash"></i></div>
+                <div class="text" id="statusText">برای شروع کلیک کن</div>
+                <div class="transcript" id="transcriptText"></div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-voice" id="voiceStartBtn">
+                    <i class="fas fa-circle" style="color:#ff4444;font-size:0.7rem;margin-left:0.3rem;"></i>
+                    شروع مکالمه
+                </button>
+                <button class="btn-confirm" id="sendToOpenAIBtn" disabled>
+                    <i class="fas fa-paper-plane"></i> ارسال به OpenAI
+                </button>
+                <button class="btn-close-modal" id="closeModalBtn">
+                    <i class="fas fa-times"></i> بستن
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== جاوااسکریپت ===== -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ===== عناصر =====
+            const floatBtn = document.getElementById('voiceFloatBtn');
+            const modal = document.getElementById('voiceModal');
+            const closeBtn = document.getElementById('closeModalBtn');
+            const voiceStartBtn = document.getElementById('voiceStartBtn');
+            const sendBtn = document.getElementById('sendToOpenAIBtn');
+            const statusText = document.getElementById('statusText');
+            const transcriptText = document.getElementById('transcriptText');
+            const iconBig = document.querySelector('.icon-big i');
+
+            let recognition = null;
+            let isListening = false;
+            let finalTranscript = '';
+
+            // ===== بررسی پشتیبانی =====
+            const isSupported = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+
+            if (!isSupported) {
+                statusText.textContent = '❌ مرورگرت از صداسازی پشتیبانی نمیکنه';
+                voiceStartBtn.disabled = true;
+                return;
+            }
+
+            // ===== ساخت Recognition =====
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'fa-IR';
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 1;
+
+            // ===== باز/بستن مودال =====
+            function openModal() {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                resetVoiceUI();
+            }
+
+            function closeModal() {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+                if (isListening) stopRecording();
+                resetVoiceUI();
+                // Stop any playing audio
+                const audioEl = document.getElementById('aiAudio');
+                if (audioEl) {
+                    audioEl.pause();
+                    audioEl.currentTime = 0;
+                }
+            }
+
+            floatBtn.addEventListener('click', openModal);
+            closeBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+
+            // ===== ریست UI =====
+            function resetVoiceUI() {
+                statusText.textContent = 'برای شروع کلیک کن';
+                statusText.className = 'text';
+                transcriptText.textContent = '';
+                transcriptText.className = 'transcript';
+                iconBig.className = 'fas fa-microphone-slash';
+                sendBtn.disabled = true;
+                voiceStartBtn.disabled = false;
+                voiceStartBtn.innerHTML = '<i class="fas fa-circle" style="color:#ff4444;font-size:0.7rem;margin-left:0.3rem;"></i> شروع مکالمه';
+                finalTranscript = '';
+            }
+
+            // ===== شروع/توقف ضبط =====
+            function startRecording() {
+                if (!recognition || isListening) return;
+                try {
+                    recognition.start();
+                    isListening = true;
+                    voiceStartBtn.disabled = true;
+                    statusText.textContent = '🎤 در حال گوش دادن...';
+                    statusText.className = 'text';
+                    iconBig.className = 'fas fa-microphone';
+                    transcriptText.textContent = '...';
+                    sendBtn.disabled = true;
+                    voiceStartBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال ضبط...';
+                } catch (e) {
+                    console.warn('Start error:', e);
+                }
+            }
+
+            function stopRecording() {
+                if (recognition && isListening) {
+                    try { recognition.stop(); } catch (e) {}
+                    isListening = false;
+                }
+                voiceStartBtn.disabled = false;
+                voiceStartBtn.innerHTML = '<i class="fas fa-circle" style="color:#ff4444;font-size:0.7rem;margin-left:0.3rem;"></i> شروع مجدد';
+                if (!finalTranscript) {
+                    statusText.textContent = '⏹️ ضبط متوقف شد، دوباره امتحان کن';
+                    iconBig.className = 'fas fa-microphone-slash';
+                }
+            }
+
+            // ===== رویدادهای Web Speech =====
+            recognition.onresult = function(event) {
+                let interim = '';
+                let final = '';
+
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        final += transcript;
+                    } else {
+                        interim += transcript;
+                    }
+                }
+
+                if (final) {
+                    finalTranscript = final;
+                    transcriptText.textContent = final;
+                    transcriptText.className = 'transcript';
+                    statusText.textContent = '✅ صدای شما دریافت شد!';
+                    statusText.className = 'text success';
+                    iconBig.className = 'fas fa-check-circle';
+                    sendBtn.disabled = false;
+                } else if (interim) {
+                    transcriptText.textContent = interim + ' ...';
+                }
+            };
+
+            recognition.onend = function() {
+                isListening = false;
+                voiceStartBtn.disabled = false;
+                voiceStartBtn.innerHTML = '<i class="fas fa-circle" style="color:#ff4444;font-size:0.7rem;margin-left:0.3rem;"></i> شروع مجدد';
+                if (!finalTranscript) {
+                    statusText.textContent = '⏹️ چیزی شنیده نشد، دوباره امتحان کن';
+                    iconBig.className = 'fas fa-microphone-slash';
+                }
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Speech error:', event.error);
+                isListening = false;
+                voiceStartBtn.disabled = false;
+                voiceStartBtn.innerHTML = '<i class="fas fa-circle" style="color:#ff4444;font-size:0.7rem;margin-left:0.3rem;"></i> شروع مجدد';
+                if (event.error === 'not-allowed') {
+                    statusText.textContent = '❌ دسترسی به میکروفون مجاز نیست';
+                } else if (event.error === 'no-speech') {
+                    statusText.textContent = '🔇 صدایی تشخیص داده نشد';
+                } else {
+                    statusText.textContent = '❌ خطا: ' + event.error;
+                }
+                iconBig.className = 'fas fa-exclamation-circle';
+            };
+
+            // ===== دکمه شروع =====
+            voiceStartBtn.addEventListener('click', function() {
+                if (isListening) {
+                    stopRecording();
+                } else {
+                    finalTranscript = '';
+                    transcriptText.textContent = '';
+                    sendBtn.disabled = true;
+                    startRecording();
+                }
+            });
+
+            // ===== ارسال به OpenAI =====
+            sendBtn.addEventListener('click', async function() {
+                if (!finalTranscript.trim()) {
+                    alert('لطفاً ابتدا صحبت کن!');
+                    return;
+                }
+
+                // غیرفعال کردن دکمه‌ها
+                sendBtn.disabled = true;
+                sendBtn.innerHTML = '<span class="spinner"></span> در حال پردازش...';
+                statusText.textContent = '🤖 در حال ارتباط با OpenAI...';
+                statusText.className = 'text';
+                iconBig.className = 'fas fa-spinner fa-spin';
+
+                try {
+                    const response = await fetch('/api/voice-assistant/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('[name=csrf-token]').content,
+                        },
+                        body: JSON.stringify({
+                            text: finalTranscript
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('خطا در ارتباط با سرور');
+                    }
+
+                    const data = await response.json();
+
+                    // نمایش جواب
+                    statusText.textContent = '✅ پاسخ دریافت شد!';
+                    statusText.className = 'text success';
+                    iconBig.className = 'fas fa-check-circle';
+                    transcriptText.textContent = data.reply;
+                    
+                    // پخش صدا
+                    if (data.audio_url) {
+                        const audio = new Audio(data.audio_url);
+                        audio.play();
+                        statusText.textContent = '🔊 در حال پخش پاسخ صوتی...';
+                    }
+
+                    // فعال کردن دوباره دکمه ارسال با متن جدید
+                    sendBtn.disabled = false;
+                    sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> ارسال مجدد';
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    statusText.textContent = '❌ خطا: ' + error.message;
+                    statusText.className = 'text error';
+                    iconBig.className = 'fas fa-exclamation-circle';
+                    sendBtn.disabled = false;
+                    sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> ارسال به OpenAI';
+                }
+            });
+
+            // ===== انیمیشن اسکرول =====
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.15,
+                rootMargin: '0px 0px -50px 0px'
+            });
+
+            document.querySelectorAll('.animate-on-scroll').forEach(el => {
+                observer.observe(el);
+            });
+
+        })();
+    </script>
+
+</body>
+</html>

@@ -796,10 +796,10 @@ def sepidar_download_excel(request):
 
             rows.append(data)
 
-            if int(inv.peyk) == 4: ## Hafez Zamani
-                hazine_peyk = int(float(inv.hazine_peyk))*1
-            else:
-                hazine_peyk = int(float(inv.hazine_peyk))*0.9
+            # if int(inv.peyk) == 4: ## Javad Zamani
+            hazine_peyk = int(float(inv.hazine_peyk))*1
+            # else:
+            #     hazine_peyk = int(float(inv.hazine_peyk))*0.9
 
             rows.append({
                 'نوع قلم' : 'InvoiceBroker',
@@ -1263,7 +1263,7 @@ def tasvieh_sepidar_download_excel(request):
             sandogh = ''
 
             if tafsil_bank is None or havale_bank is None:
-                error_factors.append(f'{inv.invoice_number} مبلغ : {inv.mablagh_pos} , شماره پوز : {inv.shomare_pos} ')
+                error_factors.append(f'{inv.invoice_number} مبلغ : {inv.mablagh_pos} , شماره پوز : {inv.shomare_pos} , نحوه تسویه : {inv.nahveh}')
                 continue
 
         else:

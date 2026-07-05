@@ -111,6 +111,6 @@ djangorestframework
 persian-names
 
 vosk
-openai=0.28.0
-pydub
-audioop-lts
+openai==0.28.0
+# pydub
+# audioop-lts

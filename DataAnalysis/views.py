@@ -797,9 +797,9 @@ def sepidar_download_excel(request):
             rows.append(data)
 
             # if int(inv.peyk) == 4: ## Javad Zamani
-            hazine_peyk = int(float(inv.hazine_peyk))*1
+                # hazine_peyk = int(float(inv.hazine_peyk))*1
             # else:
-            #     hazine_peyk = int(float(inv.hazine_peyk))*0.9
+            hazine_peyk = int(float(inv.hazine_peyk))*0.9
 
             rows.append({
                 'نوع قلم' : 'InvoiceBroker',
@@ -1417,6 +1417,10 @@ def sepidar_resid_total(data):
         'invoices': [],
         'first_invoice': None
     })
+
+
+
+    bankd_detail = {}
     
     for row in data:
         # استخراج تاریخ و حذف ساعت
@@ -1429,10 +1433,10 @@ def sepidar_resid_total(data):
                 payment_date = extract_date_only(payment_date)
         
         # استخراج شماره بانک
-        bank_code = row.get('حواله حساب بانکی', '')
-        if not bank_code:
-            bank_code = row.get('حواله تفصيل حساب بانكي', '')
-        
+        bank_code = row.get('حواله تفصيل حساب بانكي', '')
+        # if not bank_code:
+        bank_name = row.get('حواله حساب بانکی', '')
+        bankd_detail.update({bank_code:bank_name})
         if not bank_code:
             continue
         
@@ -1468,98 +1472,165 @@ def sepidar_resid_total(data):
     # مرتب‌سازی بر اساس تاریخ و شماره بانک
     sorted_keys = sorted(total_data.keys(), key=lambda x: (x[0], x[1]))
     
+    base_row_number = create_base_row_number()
+    base_row_number = 10000
+    iter__ = 0 
     for payment_date, bank_code in sorted_keys:
         values = total_data[(payment_date, bank_code)]
-        
+        iter__+=1
         # محاسبه مجموع کل مبلغ دريافت (نقدی + کارت به کارت)
-        total_receipt = values['naghdi_total'] + values['kart_be_kart_total']
-        
+        total_receipt = values['kart_be_kart_total']
+        number = f'{base_row_number}00{iter__}'
         # ایجاد سطر تجمعی برای هر تاریخ و بانک
+        type= 'ReceiptDraft'
+        sandogh = ''
+
+
         total_row = {
-            'نوع قلم': 'Total',
+            'نوع قلم': type,
             'رسيد دريافت نوع دريافت': 1,
-            'رسيد دريافت طرف مقابل': f'بانک {bank_code}',
-            'رسيد دريافت شماره': 'TOTAL',
+            'رسيد دريافت طرف مقابل': 'متفرقه/فروش',
+            'رسيد دريافت شماره': number,
             'رسيد دريافت تاريخ': payment_date,  # تاریخ بدون ساعت
             'رسيد دريافت كد معين': 121201,
-            'رسيد دريافت صندوق': '',
-            'رسيد دريافت مبلغ نقد': values['naghdi_total'],
+            'رسيد دريافت صندوق': sandogh,
+            'رسيد دريافت مبلغ نقد': 0,
             'رسيد دريافت شرح': f'مجموع فاکتورهای بانک {bank_code} - تاریخ {payment_date}',
             'رسيد دريافت مبلغ دريافت': total_receipt,
-            'حواله شماره': 'TOTAL',
+            'حواله شماره': number,
             'حواله تاريخ': payment_date,  # تاریخ بدون ساعت
             'حواله مبلغ': values['kart_be_kart_total'],
             'حواله شرح': f'مجموع کارت به کارت بانک {bank_code} - تاریخ {payment_date}',
             'حواله تفصيل حساب بانكي': bank_code,
-            'حواله حساب بانکی': bank_code,
+            'حواله حساب بانکی': bankd_detail[bank_code],
             'رسید دریافت تخفیف': 0,
             'رسید دریافت استقراری': 'False'
         }
         total_rows.append(total_row)
+
+
+
+        if values['naghdi_total']>0:
+            type = ''
+            sandogh = 'صندوق مركزي'
+
+            iter__+=1
+            # محاسبه مجموع کل مبلغ دريافت (نقدی + کارت به کارت)
+            total_receipt = values['naghdi_total'] 
+
+            number = f'{base_row_number}00{iter__}'
+
+
+
+            total_row = {
+                'نوع قلم': type,
+                'رسيد دريافت نوع دريافت': 1,
+                'رسيد دريافت طرف مقابل': 'متفرقه/فروش',
+                'رسيد دريافت شماره': number,
+                'رسيد دريافت تاريخ': payment_date,  # تاریخ بدون ساعت
+                'رسيد دريافت كد معين': 121201,
+                'رسيد دريافت صندوق': sandogh,
+                'رسيد دريافت مبلغ نقد': values['naghdi_total'],
+                'رسيد دريافت شرح': f'مجموع مبالغ نقد بانک {bank_code} - تاریخ {payment_date}',
+                'رسيد دريافت مبلغ دريافت': total_receipt,
+                # 'حواله شماره': number,
+                # 'حواله تاريخ': payment_date,  # تاریخ بدون ساعت
+                # 'حواله مبلغ': values['kart_be_kart_total'],
+                # 'حواله شرح': f'مجموع کارت به کارت بانک {bank_code} - تاریخ {payment_date}',
+                # 'حواله تفصيل حساب بانكي': bank_code,
+                # 'حواله حساب بانکی': bankd_detail[bank_code],
+                # 'رسید دریافت تخفیف': 0,
+                'رسید دریافت استقراری': 'False'
+            }
+            total_rows.append(total_row)
+
+
+
+
+
+
+
+
+
+
+
+    # # اضافه کردن سطرهای جمع‌بندی بر اساس تاریخ (جمع کل هر تاریخ)
+    # date_totals = defaultdict(lambda: {
+    #     'naghdi_total': 0,
+    #     'kart_be_kart_total': 0,
+    #     'bank_count': 0
+    # })
     
-    # اضافه کردن سطرهای جمع‌بندی بر اساس تاریخ (جمع کل هر تاریخ)
-    date_totals = defaultdict(lambda: {
-        'naghdi_total': 0,
-        'kart_be_kart_total': 0,
-        'bank_count': 0
-    })
+    # for (payment_date, _), values in total_data.items():
+    #     date_totals[payment_date]['naghdi_total'] += values['naghdi_total']
+    #     date_totals[payment_date]['kart_be_kart_total'] += values['kart_be_kart_total']
+    #     date_totals[payment_date]['bank_count'] += 1
     
-    for (payment_date, _), values in total_data.items():
-        date_totals[payment_date]['naghdi_total'] += values['naghdi_total']
-        date_totals[payment_date]['kart_be_kart_total'] += values['kart_be_kart_total']
-        date_totals[payment_date]['bank_count'] += 1
+    # # اضافه کردن سطرهای جمع کل هر تاریخ
+    # for payment_date, values in sorted(date_totals.items()):
+    #     date_total_row = {
+    #         'نوع قلم': 'Date Total',
+    #         'رسيد دريافت نوع دريافت': 1,
+    #         'رسيد دريافت طرف مقابل': f'جمع کل تاریخ {payment_date}',
+    #         'رسيد دريافت شماره': 'DATE-TOTAL',
+    #         'رسيد دريافت تاريخ': payment_date,
+    #         'رسيد دريافت كد معين': 121201,
+    #         'رسيد دريافت صندوق': '',
+    #         'رسيد دريافت مبلغ نقد': values['naghdi_total'],
+    #         'رسيد دريافت شرح': f'جمع کل نقدی تاریخ {payment_date}',
+    #         'رسيد دريافت مبلغ دريافت': values['naghdi_total'] + values['kart_be_kart_total'],
+    #         'حواله شماره': 'DATE-TOTAL',
+    #         'حواله تاريخ': payment_date,
+    #         'حواله مبلغ': values['kart_be_kart_total'],
+    #         'حواله شرح': f'جمع کل کارت به کارت تاریخ {payment_date}',
+    #         'حواله تفصيل حساب بانكي': '',
+    #         'حواله حساب بانکی': '',
+    #         'رسید دریافت تخفیف': 0,
+    #         'رسید دریافت استقراری': 'False'
+    #     }
+    #     total_rows.append(date_total_row)
     
-    # اضافه کردن سطرهای جمع کل هر تاریخ
-    for payment_date, values in sorted(date_totals.items()):
-        date_total_row = {
-            'نوع قلم': 'Date Total',
-            'رسيد دريافت نوع دريافت': 1,
-            'رسيد دريافت طرف مقابل': f'جمع کل تاریخ {payment_date}',
-            'رسيد دريافت شماره': 'DATE-TOTAL',
-            'رسيد دريافت تاريخ': payment_date,
-            'رسيد دريافت كد معين': 121201,
-            'رسيد دريافت صندوق': '',
-            'رسيد دريافت مبلغ نقد': values['naghdi_total'],
-            'رسيد دريافت شرح': f'جمع کل نقدی تاریخ {payment_date}',
-            'رسيد دريافت مبلغ دريافت': values['naghdi_total'] + values['kart_be_kart_total'],
-            'حواله شماره': 'DATE-TOTAL',
-            'حواله تاريخ': payment_date,
-            'حواله مبلغ': values['kart_be_kart_total'],
-            'حواله شرح': f'جمع کل کارت به کارت تاریخ {payment_date}',
-            'حواله تفصيل حساب بانكي': '',
-            'حواله حساب بانکی': '',
-            'رسید دریافت تخفیف': 0,
-            'رسید دریافت استقراری': 'False'
-        }
-        total_rows.append(date_total_row)
+    # # اضافه کردن سطر جمع کل نهایی (همه تاریخ‌ها)
+    # grand_total_naghdi = sum(v['naghdi_total'] for v in total_data.values())
+    # grand_total_kart = sum(v['kart_be_kart_total'] for v in total_data.values())
     
-    # اضافه کردن سطر جمع کل نهایی (همه تاریخ‌ها)
-    grand_total_naghdi = sum(v['naghdi_total'] for v in total_data.values())
-    grand_total_kart = sum(v['kart_be_kart_total'] for v in total_data.values())
-    
-    grand_total_row = {
-        'نوع قلم': 'Grand Total',
-        'رسيد دريافت نوع دريافت': 1,
-        'رسيد دريافت طرف مقابل': 'مجموع کل نهایی',
-        'رسيد دريافت شماره': 'GRAND',
-        'رسيد دريافت تاريخ': 'همه تاریخ‌ها',
-        'رسيد دريافت كد معين': 121201,
-        'رسيد دريافت صندوق': '',
-        'رسيد دريافت مبلغ نقد': grand_total_naghdi,
-        'رسيد دريافت شرح': 'مجموع کل نقدی',
-        'رسيد دريافت مبلغ دريافت': grand_total_naghdi + grand_total_kart,
-        'حواله شماره': 'GRAND',
-        'حواله تاريخ': 'همه تاریخ‌ها',
-        'حواله مبلغ': grand_total_kart,
-        'حواله شرح': 'مجموع کل کارت به کارت',
-        'حواله تفصيل حساب بانكي': '',
-        'حواله حساب بانکی': '',
-        'رسید دریافت تخفیف': 0,
-        'رسید دریافت استقراری': 'False'
-    }
-    total_rows.append(grand_total_row)
+    # grand_total_row = {
+    #     'نوع قلم': 'Grand Total',
+    #     'رسيد دريافت نوع دريافت': 1,
+    #     'رسيد دريافت طرف مقابل': 'مجموع کل نهایی',
+    #     'رسيد دريافت شماره': 'GRAND',
+    #     'رسيد دريافت تاريخ': 'همه تاریخ‌ها',
+    #     'رسيد دريافت كد معين': 121201,
+    #     'رسيد دريافت صندوق': '',
+    #     'رسيد دريافت مبلغ نقد': grand_total_naghdi,
+    #     'رسيد دريافت شرح': 'مجموع کل نقدی',
+    #     'رسيد دريافت مبلغ دريافت': grand_total_naghdi + grand_total_kart,
+    #     'حواله شماره': 'GRAND',
+    #     'حواله تاريخ': 'همه تاریخ‌ها',
+    #     'حواله مبلغ': grand_total_kart,
+    #     'حواله شرح': 'مجموع کل کارت به کارت',
+    #     'حواله تفصيل حساب بانكي': '',
+    #     'حواله حساب بانکی': '',
+    #     'رسید دریافت تخفیف': 0,
+    #     'رسید دریافت استقراری': 'False'
+    # }
+    # total_rows.append(grand_total_row)
     
     return total_rows
+
+
+def create_base_row_number():
+    # Get current time in Jalali (Persian) calendar
+    jalali_time = jdatetime.datetime.now()
+    
+    year = jalali_time.year
+    month = f"{jalali_time.month:02d}"  # Format month as 2 digits (01, 02, ..., 12)
+    day = f"{jalali_time.day:02d}"      # Format day as 2 digits (01, 02, ..., 31)
+    
+    return f'{year}{month}{day}'
+
+
+
 # views.py
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse

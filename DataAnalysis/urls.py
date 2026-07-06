@@ -13,6 +13,8 @@ urlpatterns = [
     path('nahve/', views.calc_nahve_pardakh, name='calc_nahve_pardakht'),
     path("api/receive-invoice/", views.ReceiveInvoice.as_view()),
     path("api/receive-user/", views.ReceiveUser.as_view()),
+    path("api/update-time-invoice/", views.ReceiveUpdateInvoiceTime.as_view()),
+    path("api/remove-invoice/", views.ReceiveRemoveInvoice.as_view()),
     path("report/", views.invoice_report, name="invoice_report"),
     path("report/download/", views.download_invoice_excel, name="download_invoice_excel"),
     path("report/download-summary/", views.sepidar_download_excel, name="download_invoice_summary_excel"),

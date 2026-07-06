@@ -1184,6 +1184,12 @@ def tasvieh_sepidar_download_excel(request):
 
     # selected_date = datetime.strptime(date_str, "%Y-%m-%d").date() if date_str else timezone.localdate()
 
+    jalali = jdatetime.datetime.fromgregorian(datetime=selected_date)
+    jalali_date = jalali.strftime("%Y-%m-%d")
+    # Various formats
+    # print(jalali.strftime("%Y-%m-%d"))           # 1405-04-15
+
+
     start, end = get_date_range(selected_date)
 
     invoices = (
@@ -1248,9 +1254,10 @@ def tasvieh_sepidar_download_excel(request):
         except:
             pass
 
-        if float(inv.naghdi)>0:
+        if float(inv.naghdi)>0 :
             naghdi = int(float(inv.naghdi))
-            today_payment = True
+            if float(inv.mablagh_pos)<=0 :
+                today_payment = True
 
         else:
             naghdi = 0 
@@ -1310,7 +1317,7 @@ def tasvieh_sepidar_download_excel(request):
     
 
     if is_total:
-        rows = sepidar_resid_total(data=rows)
+        rows = sepidar_resid_total(data=rows,selected_date=jalali_date)
 
     # Load once at import time
     SERVER = check_server()
@@ -1382,7 +1389,7 @@ def tasvieh_sepidar_download_excel(request):
     resp["X-Error-Factors"] = json.dumps(error_factors)
     return resp
 
-def sepidar_resid_total(data):
+def sepidar_resid_total(data,selected_date):
     """
     پردازش داده‌ها در حالت total:
     - جمع‌آوری مبالغ نقدی و کارت به کارت به تفکیک تاریخ (فقط روز) و شماره بانک
@@ -1495,12 +1502,12 @@ def sepidar_resid_total(data):
             'رسيد دريافت كد معين': 121201,
             'رسيد دريافت صندوق': sandogh,
             'رسيد دريافت مبلغ نقد': 0,
-            'رسيد دريافت شرح': f'مجموع فاکتورهای بانک {bank_code} - تاریخ {payment_date}',
+            'رسيد دريافت شرح': f'بابت فروش {selected_date}',
             'رسيد دريافت مبلغ دريافت': total_receipt,
             'حواله شماره': number,
             'حواله تاريخ': payment_date,  # تاریخ بدون ساعت
             'حواله مبلغ': values['kart_be_kart_total'],
-            'حواله شرح': f'مجموع کارت به کارت بانک {bank_code} - تاریخ {payment_date}',
+            'حواله شرح': f'بابت فروش {selected_date}',
             'حواله تفصيل حساب بانكي': bank_code,
             'حواله حساب بانکی': bankd_detail[bank_code],
             'رسید دریافت تخفیف': 0,
@@ -2094,3 +2101,107 @@ class ReceiveUser(APIView):
                 "status": "Existed",
                 "username": username
             }, status=status.HTTP_200_OK)
+        
+
+
+class ReceiveUpdateInvoiceTime(APIView):
+    def post(self, request):
+        data = request.data
+
+        # ── Authentication ──
+        if request.headers.get("X-API-KEY") != "SECRET123":
+            return Response({"error": "unauthorized"}, status=403)
+
+        # ── Get fields ──
+        invoice_number = data.get('invoice_number')
+        date = data.get('date')  # Jalali date: e.g., "1404/07/15"
+        time = data.get('time')  # Time: e.g., "14:30:00"
+
+        # ── Validate required fields ──
+        if not invoice_number:
+            return Response({"error": "invoice_number is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not date or not time:
+            return Response({"error": "date and time are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # ── Convert Jalali date/time to Gregorian ──
+            date_time = jalali_date_time_to_gregorian(date,time)
+        except Exception as e:
+            return Response({"error": f"Invalid date/time format: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # ── Create unique invoice number ──
+        year_shamsi = jdatetime.datetime.now().year
+        # unique_invoice_number = f'{year_shamsi}_{invoice_number}'
+
+        # ── Check if invoice exists ──
+        try:
+            invoice = Invoice.objects.filter(invoice_number=invoice_number).last()
+        except Invoice.DoesNotExist:
+            return Response({
+                "error": f"Invoice with number {invoice_number} does not exist",
+                "message": "Invoice not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # ── Update the time ──
+        invoice.created_at = date_time
+        invoice.save()
+
+        # ── Return success response ──
+        return Response({
+            "success": True,
+            "message": f"Invoice {invoice_number} updated successfully",
+            "data": {
+                "invoice_number": invoice_number,
+                "unique_invoice_number": invoice_number,
+                "new_time": date_time.strftime("%Y-%m-%d %H:%M:%S")
+            }
+        }, status=status.HTTP_200_OK)
+    
+
+
+
+        
+
+class ReceiveRemoveInvoice(APIView):
+    def post(self, request):
+        data = request.data
+
+        # ── Authentication ──
+        if request.headers.get("X-API-KEY") != "SECRET123":
+            return Response({"error": "unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+        # ── Get fields ──
+        invoice_number = data.get('invoice_number')
+
+        # ── Validate required fields ──
+        if not invoice_number:
+            return Response(
+                {"error": "invoice_number is required"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+        # ── Check if invoice exists ──
+        try:
+            invoice = Invoice.objects.get(invoice_number=invoice_number)
+        except Invoice.DoesNotExist:
+            return Response({
+                "error": f"Invoice with number {invoice_number} does not exist",
+                "message": "Invoice not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # ── Delete the invoice ──
+        invoice.delete()
+
+        # ── Return success response ──
+        return Response({
+            "success": True,
+            "message": f"Invoice {invoice_number} removed successfully",
+            "data": {
+                "invoice_number": invoice_number,
+                "unique_invoice_number": invoice_number,
+                "deleted_at": jdatetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+        }, status=status.HTTP_200_OK)
+

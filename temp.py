@@ -1,45 +1,47 @@
-# لیست اعداد شما (به صورت رشته)
-data = """
-total
-khales
-3500000/00
-15000000/00
-28000000/00
-13000000/00
-6400000/00
-15180000/00
-16800000/00
-10950000/00
-2360000/00
-11770000/00
-7000000/00
-9910000/00
-5400000/00
-21000000/00
-7060000/00
-3530000/00
-14500000/00
-10200000/00
-7000000/00
-5010000/00
-7750000/00
-7000000/00
+import requests
+import json
 
-"""
-
-def sum_numbers(raw_data):
-    total = 0
-    # جدا کردن اعداد با خط جدید
-    lines = raw_data.strip().split('\n')
+# ── Example 1: Remove valid invoice ──
+def remove_valid_invoice():
+    url = "http://localhost:8900/data_analysis/api/remove-invoice/"
     
-    for line in lines:
-        # حذف بخش /00 و تبدیل به عدد صحیح
-        clean_number = line.split('/')[0]
-        if clean_number.isdigit():
-            total += int(clean_number)
-            
-    return total
+    headers = {
+        "X-API-KEY": "SECRET123",
+        "Content-Type": "application/json"
+    }
+    
+    data = {
+        "invoice_number": "10989"
+    }
+    
+    response = requests.post(url, headers=headers, json=data)
+    
+    print("✅ Valid Invoice Removal:")
+    print(f"Status: {response.status_code}")
+    # print(f"Response: {json.dumps(response.json(), indent=2, ensure_ascii=False)}")
+    return response
 
-# اجرای تابع
-result = sum_numbers(data)
-print(f"مجموع اعداد: {result:,}")
+# ── Example 2: Remove non-existent invoice ──
+def remove_invalid_invoice():
+    url = "http://localhost:8900/data_analysis/api/remove-invoice/"
+    
+    headers = {
+        "X-API-KEY": "SECRET123",
+        "Content-Type": "application/json"
+    }
+    
+    data = {
+        "invoice_number": "99999"  # Invoice that doesn't exist
+    }
+    
+    response = requests.post(url, headers=headers, json=data)
+    
+    print("\n❌ Invalid Invoice Removal:")
+    print(f"Status: {response.status_code}")
+    # print(f"Response: {json.dumps(response.json(), indent=2, ensure_ascii=False)}")
+    return response
+
+# ── Run examples ──
+if __name__ == "__main__":
+    remove_valid_invoice()
+    remove_invalid_invoice()

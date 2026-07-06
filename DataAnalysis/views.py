@@ -2166,14 +2166,14 @@ class ReceiveUpdateInvoiceTime(APIView):
 class ReceiveRemoveInvoice(APIView):
     def post(self, request):
         data = request.data
-
+        print('start remove')
         # ── Authentication ──
         if request.headers.get("X-API-KEY") != "SECRET123":
             return Response({"error": "unauthorized"}, status=status.HTTP_403_FORBIDDEN)
 
         # ── Get fields ──
         invoice_number = data.get('invoice_number')
-
+        print('Invoice for delete recieved : ',invoice_number)
         # ── Validate required fields ──
         if not invoice_number:
             return Response(
@@ -2193,7 +2193,7 @@ class ReceiveRemoveInvoice(APIView):
 
         # ── Delete the invoice ──
         invoice.delete()
-
+        print('removed success')
         # ── Return success response ──
         return Response({
             "success": True,

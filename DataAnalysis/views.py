@@ -718,7 +718,7 @@ def sepidar_download_excel(request):
 
       
 
-            if int(it.total)>int(inv.discount) and not it_discount_flag:
+            if int(it.total)>=int(inv.discount) and not it_discount_flag:
                 it.discount = inv.discount
                 it_discount_flag = True
             

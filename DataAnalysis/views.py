@@ -1210,10 +1210,6 @@ def tasvieh_sepidar_download_excel(request):
     SKIPPED_SHOMARE_POS = [11,13,14]
     for inv in invoices:
 
-        if int(inv.invoice_number) == 16075:
-            pass
-
-
         tafsil_bank,havale_bank = None , None
 
         if int(inv.moshtarak) ==1:
@@ -1283,10 +1279,20 @@ def tasvieh_sepidar_download_excel(request):
         else:
             payment_date = havale_format_jalali_datetime(inv.created_at)
   
+    
+        if 10000<int(inv.moshtarak)<=20000:
+            taraf_moghabel = inv.moshtarak
+        else:
+            # 'متفرقه/فروش'
+            taraf_moghabel = MOSHTARAK_DEFAULT_CODE
+
+
+
+
         rows.append({
             'نوع قلم' : type,
             'رسيد دريافت نوع دريافت':1,
-            'رسيد دريافت طرف مقابل':'متفرقه/فروش',
+            'رسيد دريافت کد':taraf_moghabel,
             'رسيد دريافت شماره':inv.invoice_number,
             'رسيد دريافت تاريخ':payment_date,
             'رسيد دريافت كد معين':121201,
@@ -1335,12 +1341,11 @@ def tasvieh_sepidar_download_excel(request):
     COL_MAP = {
         'نوع قلم' : 'A',
         'رسيد دريافت نوع دريافت':'B',
-        'رسيد دريافت طرف مقابل':'C',
+        'رسيد دريافت کد':'C',
         'رسيد دريافت شماره':'D',
         'رسيد دريافت تاريخ':'E',
         'رسيد دريافت كد معين':'F',
         'رسيد دريافت صندوق':'G',
-
         'رسيد دريافت مبلغ نقد':'H',
         'رسيد دريافت شرح':'I',
         'رسيد دريافت مبلغ دريافت':'AA',
@@ -1349,12 +1354,9 @@ def tasvieh_sepidar_download_excel(request):
         'حواله مبلغ':'AD',
         'حواله شرح':'AF',
         'حواله تفصيل حساب بانكي':'AH',
-
         'رسید دریافت تخفیف' : 'AL',
-        'رسید دریافت استقراری' : 'AM',
-    
+        'رسید دریافت استقراری' : 'AM',    
         'حواله حساب بانکی':'AE',
-
         # "date": "M",   # if you don't want it, comment/remove it
     }
 
@@ -1429,8 +1431,15 @@ def sepidar_resid_total(data,selected_date):
 
     bankd_detail = {}
     
+    other_rows = []
+
     for row in data:
         # استخراج تاریخ و حذف ساعت
+        if row['رسيد دريافت کد']!= MOSHTARAK_DEFAULT_CODE:
+            other_rows.append(row)
+            continue
+        
+        
         payment_date = row.get('رسيد دريافت تاريخ', '')
         if payment_date:
             payment_date = extract_date_only(payment_date)
@@ -1496,7 +1505,7 @@ def sepidar_resid_total(data,selected_date):
         total_row = {
             'نوع قلم': type,
             'رسيد دريافت نوع دريافت': 1,
-            'رسيد دريافت طرف مقابل': 'متفرقه/فروش',
+            'رسيد دريافت کد': MOSHTARAK_DEFAULT_CODE,
             'رسيد دريافت شماره': number,
             'رسيد دريافت تاريخ': payment_date,  # تاریخ بدون ساعت
             'رسيد دريافت كد معين': 121201,
@@ -1532,7 +1541,7 @@ def sepidar_resid_total(data,selected_date):
             total_row = {
                 'نوع قلم': type,
                 'رسيد دريافت نوع دريافت': 1,
-                'رسيد دريافت طرف مقابل': 'متفرقه/فروش',
+                'رسيد دريافت کد': MOSHTARAK_DEFAULT_CODE,
                 'رسيد دريافت شماره': number,
                 'رسيد دريافت تاريخ': payment_date,  # تاریخ بدون ساعت
                 'رسيد دريافت كد معين': 121201,
@@ -1553,76 +1562,13 @@ def sepidar_resid_total(data,selected_date):
 
 
 
+    for row in other_rows:
+        total_rows.append(row)
 
 
 
 
 
-
-
-
-    # # اضافه کردن سطرهای جمع‌بندی بر اساس تاریخ (جمع کل هر تاریخ)
-    # date_totals = defaultdict(lambda: {
-    #     'naghdi_total': 0,
-    #     'kart_be_kart_total': 0,
-    #     'bank_count': 0
-    # })
-    
-    # for (payment_date, _), values in total_data.items():
-    #     date_totals[payment_date]['naghdi_total'] += values['naghdi_total']
-    #     date_totals[payment_date]['kart_be_kart_total'] += values['kart_be_kart_total']
-    #     date_totals[payment_date]['bank_count'] += 1
-    
-    # # اضافه کردن سطرهای جمع کل هر تاریخ
-    # for payment_date, values in sorted(date_totals.items()):
-    #     date_total_row = {
-    #         'نوع قلم': 'Date Total',
-    #         'رسيد دريافت نوع دريافت': 1,
-    #         'رسيد دريافت طرف مقابل': f'جمع کل تاریخ {payment_date}',
-    #         'رسيد دريافت شماره': 'DATE-TOTAL',
-    #         'رسيد دريافت تاريخ': payment_date,
-    #         'رسيد دريافت كد معين': 121201,
-    #         'رسيد دريافت صندوق': '',
-    #         'رسيد دريافت مبلغ نقد': values['naghdi_total'],
-    #         'رسيد دريافت شرح': f'جمع کل نقدی تاریخ {payment_date}',
-    #         'رسيد دريافت مبلغ دريافت': values['naghdi_total'] + values['kart_be_kart_total'],
-    #         'حواله شماره': 'DATE-TOTAL',
-    #         'حواله تاريخ': payment_date,
-    #         'حواله مبلغ': values['kart_be_kart_total'],
-    #         'حواله شرح': f'جمع کل کارت به کارت تاریخ {payment_date}',
-    #         'حواله تفصيل حساب بانكي': '',
-    #         'حواله حساب بانکی': '',
-    #         'رسید دریافت تخفیف': 0,
-    #         'رسید دریافت استقراری': 'False'
-    #     }
-    #     total_rows.append(date_total_row)
-    
-    # # اضافه کردن سطر جمع کل نهایی (همه تاریخ‌ها)
-    # grand_total_naghdi = sum(v['naghdi_total'] for v in total_data.values())
-    # grand_total_kart = sum(v['kart_be_kart_total'] for v in total_data.values())
-    
-    # grand_total_row = {
-    #     'نوع قلم': 'Grand Total',
-    #     'رسيد دريافت نوع دريافت': 1,
-    #     'رسيد دريافت طرف مقابل': 'مجموع کل نهایی',
-    #     'رسيد دريافت شماره': 'GRAND',
-    #     'رسيد دريافت تاريخ': 'همه تاریخ‌ها',
-    #     'رسيد دريافت كد معين': 121201,
-    #     'رسيد دريافت صندوق': '',
-    #     'رسيد دريافت مبلغ نقد': grand_total_naghdi,
-    #     'رسيد دريافت شرح': 'مجموع کل نقدی',
-    #     'رسيد دريافت مبلغ دريافت': grand_total_naghdi + grand_total_kart,
-    #     'حواله شماره': 'GRAND',
-    #     'حواله تاريخ': 'همه تاریخ‌ها',
-    #     'حواله مبلغ': grand_total_kart,
-    #     'حواله شرح': 'مجموع کل کارت به کارت',
-    #     'حواله تفصيل حساب بانكي': '',
-    #     'حواله حساب بانکی': '',
-    #     'رسید دریافت تخفیف': 0,
-    #     'رسید دریافت استقراری': 'False'
-    # }
-    # total_rows.append(grand_total_row)
-    
     return total_rows
 
 

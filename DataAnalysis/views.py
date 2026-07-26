@@ -2151,3 +2151,90 @@ class ReceiveRemoveInvoice(APIView):
             }
         }, status=status.HTTP_200_OK)
 
+
+
+
+
+
+from django.views.decorators.http import require_http_methods
+
+import logging
+
+logger = logging.getLogger(__name__)
+@require_http_methods(["GET"])
+def get_items_for_day(request):
+    """
+    Get total quantity of each food item from 3 AM on target_date 
+    until 3 AM on the next day.
+    
+    Returns:
+        JsonResponse with {food_name: total_quantity} or error
+    """
+    try:
+        # Get date from request (expecting format: YYYY-MM-DD)
+        date_str = request.GET.get('date')
+        
+        if not date_str:
+            return JsonResponse({
+                "success": False,
+                "error": "تاریخ الزامی است"
+            })
+        
+        # Parse the date string
+        try:
+            target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except ValueError:
+            return JsonResponse({
+                "success": False,
+                "error": "فرمت تاریخ صحیح نیست. فرمت مورد نظر: YYYY-MM-DD"
+            })
+        
+        # Create datetime range: from 3 AM on target_date to 3 AM next day
+        start_datetime = datetime.combine(target_date, datetime.min.time()) + timedelta(hours=3)
+        end_datetime = start_datetime + timedelta(days=1)
+        
+        # Make timezone aware if using timezone
+        if timezone.is_aware(timezone.now()):
+            start_datetime = timezone.make_aware(start_datetime)
+            end_datetime = timezone.make_aware(end_datetime)
+        
+        # Query InvoiceItems with their related invoices
+        items = InvoiceItem.objects.filter(
+            invoice__created_at__gte=start_datetime,
+            invoice__created_at__lt=end_datetime
+        ).values('food_name').annotate(
+            total_quantity=Sum('quantity')
+        )
+        
+        # Convert to list of objects (not dict) for frontend
+        result = []
+        for item in items:
+
+            try:
+                name = get_kname_by_kcod(item['food_name'])
+                code = get_code_by_name(name=name)
+            except:
+                name = item['food_name']
+                code = item['food_name']
+
+
+            result.append({
+                'code': code,  # Using food_name as code
+                'name': name,
+                'quantity': item['total_quantity'],
+                'available_quantity': 'نا مشخص',  # You might want to calculate this differently
+            })
+        
+        return JsonResponse({
+            "success": True,
+            "data": result,  # Send as array, not dict
+            "date": date_str,
+            "period": f"3 AM {target_date} to 3 AM {target_date + timedelta(days=1)}"
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in get_items_for_day: {e}")
+        return JsonResponse({
+            "success": False,
+            "error": str(e)
+        })

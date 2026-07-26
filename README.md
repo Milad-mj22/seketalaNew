@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 # milad_repo
-=======
-# seketalaHamgit
->>>>>>> 4a1f2b4c28bb794b01236c69d26250388f36cbb2
 
 
 
@@ -15,30 +11,18 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 ## Add your files
 
 - [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-<<<<<<< HEAD
 - [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
 
 ```
 cd existing_repo
 git remote add origin http://37.255.213.180/temp/milad_repo.git
-=======
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://hamgit.ir/m.moltaji/seketalahamgit.git
->>>>>>> 4a1f2b4c28bb794b01236c69d26250388f36cbb2
 git branch -M main
 git push -uf origin main
 ```
 
 ## Integrate with your tools
 
-<<<<<<< HEAD
 - [ ] [Set up project integrations](http://37.255.213.180/temp/milad_repo/-/settings/integrations)
-=======
-- [ ] [Set up project integrations](https://hamgit.ir/m.moltaji/seketalahamgit/-/settings/integrations)
->>>>>>> 4a1f2b4c28bb794b01236c69d26250388f36cbb2
 
 ## Collaborate with your team
 
@@ -46,21 +30,13 @@ git push -uf origin main
 - [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
 - [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
 - [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-<<<<<<< HEAD
 - [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-=======
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
->>>>>>> 4a1f2b4c28bb794b01236c69d26250388f36cbb2
 
 ## Test and Deploy
 
 Use the built-in continuous integration in GitLab.
 
-<<<<<<< HEAD
 - [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-=======
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
->>>>>>> 4a1f2b4c28bb794b01236c69d26250388f36cbb2
 - [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
 - [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
 - [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)

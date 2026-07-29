@@ -649,7 +649,7 @@ def sepidar_download_excel(request):
             if it.food_name == '':
                 pass
             name = get_kname_by_kcod(it.food_name)
-            code = get_code_by_name(name=name)
+            code = get_code_by_name(name=name,date=selected_date)
             try:
                 _id = int(it.food_name)
             except:
@@ -685,7 +685,7 @@ def sepidar_download_excel(request):
                 error_factors.append(f'{str(inv.invoice_number)} , Food in fodsoft with name {name} not exist in Code'  )  # Add invoice number to error list
 
                 pass
-            code = get_code_by_name(name=name)
+            code = get_code_by_name(name=name,date=selected_date)
             if code is None:
                 error_text = f'Error food soft : Empty code {code} , it.food_name : {it.food_name} , name : {name}'
                 if not SERVER:
@@ -2212,7 +2212,7 @@ def get_items_for_day(request):
 
             try:
                 name = get_kname_by_kcod(item['food_name'])
-                code = get_code_by_name(name=name)
+                code = get_code_by_name(name=name,date=start_datetime)
             except:
                 name = item['food_name']
                 code = item['food_name']

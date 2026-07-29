@@ -1,7 +1,9 @@
+import datetime
+
 import pandas as pd
 from pathlib import Path
 from rapidfuzz import process, fuzz
-from user_management.utils import check_server
+# from user_management.utils import check_server
 
 # -----------------------------
 # Normalization
@@ -16,7 +18,8 @@ def normalize_fa(text: str) -> str:
 
 
 # Load once at import time
-SERVER = check_server()
+# SERVER = check_server()
+SERVER = False
 
 if SERVER:
     EXCEL_PATH = Path(r"/home/seketal1/Seketala_Kitchen_Flow/cache/sepidar_food_code.xlsx")  # adjust path
@@ -36,7 +39,21 @@ _NAMES = list(_NAME_TO_CODE.keys())
 # Fuzzy lookup (≥ 90%)
 
 # -----------------------------
-def get_code_by_name(name: str, threshold: int = 90) -> str | None:
+
+
+CODE_BY_DATE={
+    2100018:1100085,
+    2100001:1100086,
+    2500013:1100088,
+    1100066:1100087,
+    1100082:1100082,
+    1100082:1100082,
+    1100082:1100082,
+    1100082:1100082,
+}
+
+
+def get_code_by_name(name: str, threshold: int = 90,date=None) -> str | None:
     if not name:
         return None
 
@@ -50,7 +67,18 @@ def get_code_by_name(name: str, threshold: int = 90) -> str | None:
 
     if match and match[1] >= threshold:
         matched_name = match[0]
-        return _NAME_TO_CODE[matched_name]
+
+        code = _NAME_TO_CODE[matched_name]
+        if date:
+            target_date = datetime.datetime(2026, 7, 23,0,0,0)
+            if isinstance(date, datetime.date) and not isinstance(date, datetime.datetime):
+                date = datetime.datetime.combine(date, datetime.time.min)
+
+
+            if date>=target_date:
+                if int(code) in CODE_BY_DATE.keys():
+                    code =str(CODE_BY_DATE[int(code)])
+        return code
 
 
     return None

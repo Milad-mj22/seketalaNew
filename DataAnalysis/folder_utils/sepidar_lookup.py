@@ -3,7 +3,7 @@ import datetime
 import pandas as pd
 from pathlib import Path
 from rapidfuzz import process, fuzz
-# from user_management.utils import check_server
+from user_management.utils import check_server
 
 # -----------------------------
 # Normalization
@@ -18,8 +18,7 @@ def normalize_fa(text: str) -> str:
 
 
 # Load once at import time
-# SERVER = check_server()
-SERVER = False
+SERVER = check_server()
 
 if SERVER:
     EXCEL_PATH = Path(r"/home/seketal1/Seketala_Kitchen_Flow/cache/sepidar_food_code.xlsx")  # adjust path

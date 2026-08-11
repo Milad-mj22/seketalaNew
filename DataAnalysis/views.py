@@ -2238,3 +2238,15 @@ def get_items_for_day(request):
             "success": False,
             "error": str(e)
         })
+        
+        
+        
+        
+        
+
+def items2buy(request):
+    # Redirect to a specific URL
+    return redirect('http://37.148.86.157:1375//stock_manager/items2buy')
+        
+        
+        

@@ -2172,17 +2172,23 @@ def get_items_for_day(request):
     """
     try:
         # Get date from request (expecting format: YYYY-MM-DD)
-        date_str = request.GET.get('date')
+        start_date_str = request.GET.get('start_date')
+        end_date_str = request.GET.get('end_date')
         
-        if not date_str:
+        if not start_date_str:
             return JsonResponse({
                 "success": False,
-                "error": "تاریخ الزامی است"
+                "error": "تاریخ شروع الزامی است"
             })
-        
+        if not end_date_str:
+            return JsonResponse({
+                "success": False,
+                "error": "تاریخ پایان الزامی است"
+            })
         # Parse the date string
         try:
-            target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            start_target_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_target_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
         except ValueError:
             return JsonResponse({
                 "success": False,
@@ -2190,8 +2196,8 @@ def get_items_for_day(request):
             })
         
         # Create datetime range: from 3 AM on target_date to 3 AM next day
-        start_datetime = datetime.combine(target_date, datetime.min.time()) + timedelta(hours=3)
-        end_datetime = start_datetime + timedelta(days=1)
+        start_datetime = datetime.combine(start_target_date, datetime.min.time()) + timedelta(hours=3)
+        end_datetime = datetime.combine(end_target_date, datetime.min.time()) + timedelta(hours=3) + timedelta(days=1)
         
         # Make timezone aware if using timezone
         if timezone.is_aware(timezone.now()):
@@ -2228,8 +2234,8 @@ def get_items_for_day(request):
         return JsonResponse({
             "success": True,
             "data": result,  # Send as array, not dict
-            "date": date_str,
-            "period": f"3 AM {target_date} to 3 AM {target_date + timedelta(days=1)}"
+            "date": start_date_str,
+            "period": f"3 AM {start_target_date} to 3 AM {end_target_date}"
         })
         
     except Exception as e:

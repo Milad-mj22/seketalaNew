@@ -12,5 +12,7 @@ urlpatterns = [
     path('speech-to-text', views.speech_to_text, name='speech-to-text'),
     path('chat', views.chat_api, name='chat_api'),
     path('confirm-order', views.confirm_order, name='confirm_order'),
+    path('receive-low-stock/', views.receive_low_stock, name='receive_low_stock'),
+    path('low-stock-report/', views.low_stock_report_page, name='low_stock_report_page'),
     ]
 

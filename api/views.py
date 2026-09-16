@@ -517,3 +517,145 @@ def confirm_order(request):
             'success': False,
             'message': f'خطا در ثبت سفارش: {str(e)}'
         }, status=500)
+
+
+
+
+
+
+
+
+# seketalamanager/api/views.py
+import json
+import logging
+from datetime import datetime
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from .models import APIKey, LowStockReport
+
+logger = logging.getLogger(__name__)
+
+
+def _authenticate(request):
+    """اعتبارسنجی API Key"""
+    api_key = request.headers.get('X-API-Key')
+    
+    if not api_key:
+        return None, 'API Key ارائه نشده'
+    
+    try:
+        key_obj = APIKey.objects.get(key=api_key, is_active=True)
+        return key_obj, None
+    except APIKey.DoesNotExist:
+        return None, 'API Key نامعتبر است'
+
+
+def _get_client_ip(request):
+    """استخراج IP واقعی کلاینت (با در نظر گرفتن proxy)"""
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        return x_forwarded_for.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR')
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def receive_low_stock(request):
+    """دریافت و ذخیره کل گزارش کمبود موجودی از سیستم سپیدار"""
+    
+    # اعتبارسنجی
+    key_obj, error = _authenticate(request)
+    if error:
+        logger.warning(f"Auth failed: {error}")
+        return JsonResponse({'success': False, 'error': error}, status=401)
+    
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'JSON نامعتبر'}, status=400)
+    
+    # اعتبارسنجی حداقلی
+    required_fields = ['low_stock_items', 'total_items', 'low_stock_count']
+    missing = [f for f in required_fields if f not in data]
+    if missing:
+        return JsonResponse(
+            {'success': False, 'error': f'فیلدهای الزامی: {", ".join(missing)}'}, 
+            status=400
+        )
+    
+    try:
+        # ذخیره کل داده در یک رکورد
+        report = LowStockReport.objects.create(
+            data=data,
+            source=data.get('source', 'unknown'),
+            total_items=data.get('total_items', 0),
+            low_stock_count=data.get('low_stock_count', 0),
+            received_from_key=key_obj,
+            sender_timestamp=data.get('timestamp', ''),
+            sender_ip=_get_client_ip(request),
+            user_agent=request.META.get('HTTP_USER_AGENT', '')[:500],
+            # فیلدهای shortage_percent, total_shortage, 
+            # critical_count, warning_count به صورت خودکار در save() محاسبه می‌شوند
+        )
+        
+        logger.info(
+            f"✓ Received report #{report.id} with "
+            f"{report.low_stock_count} low stock items from {key_obj.name} "
+            f"(critical: {report.critical_count}, warning: {report.warning_count})"
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'گزارش با موفقیت ذخیره شد ({report.low_stock_count} قلم)',
+            'report_id': report.id,
+        })
+        
+    except Exception as e:
+        logger.error(f"Error saving low stock data: {e}", exc_info=True)
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+
+
+
+
+# seketalamanager/api/views.py
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import LowStockReport
+
+
+@login_required
+def low_stock_report_page(request):
+    """
+    نمایش آخرین گزارش کمبود موجودی با همان قالب پروژه مبدأ
+    """
+    latest_report = LowStockReport.objects.select_related(
+        'received_from_key'
+    ).order_by('-received_at').first()
+    
+    if latest_report:
+        # علامت‌گذاری به عنوان خوانده شده
+        latest_report.mark_as_read()
+        
+        # استفاده از property های مدل (مرتب‌شده)
+        low_stock_items = latest_report.items
+        total_items = latest_report.total_items
+    else:
+        low_stock_items = []
+        total_items = 0
+    
+    # همان ساختار context پروژه مبدأ
+    context = {
+        'low_stock_items': low_stock_items,
+        'total_items': total_items,
+        'low_stock_count': len(low_stock_items),
+        'active_page': 'low_stock_report',
+        
+        # اطلاعات اضافی
+        'report': latest_report,
+        'last_updated': latest_report.received_at if latest_report else None,
+    }
+    
+    return render(request, 'low_stock_report.html', context)

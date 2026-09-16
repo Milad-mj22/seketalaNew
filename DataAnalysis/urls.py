@@ -27,10 +27,16 @@ urlpatterns = [
     path('factors/<int:invoice_id>/update-payments/', views.update_payments, name='update_payments'),
     path('api/factors/', views.api_factors, name='api_factors'),
     path('api/get-date-items/', views.get_items_for_day, name='get_items_for_day'),
-    
+
     path('items2buy/', views.items2buy, name='items2buy'),
     
-    
-    
+    path('food-items/', views.food_items_list, name='food_items_list'),
+    path('food-items/create/', views.food_items_create, name='food_items_create'),
+    path('food-items/<int:pk>/edit/', views.food_items_edit, name='food_items_edit'),
+    path('food-items/<int:pk>/delete/', views.food_items_delete, name='food_items_delete'),
+    path('food-items/bulk-delete/', views.food_items_bulk_delete, name='food_items_bulk_delete'),
+    path('food-items/<int:pk>/inline-update/', views.food_items_inline_update, name='food_items_inline_update'),
+
+
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

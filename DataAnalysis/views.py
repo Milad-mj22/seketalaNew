@@ -2278,3 +2278,217 @@ def items2buy(request):
         
         
         
+
+
+
+
+
+
+
+
+# your_app/views.py
+import json
+import logging
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+
+from .models import FoodItems
+from .forms import FoodItemsForm
+
+logger = logging.getLogger(__name__)
+
+
+# ============================================
+# List View
+# ============================================
+@login_required
+def food_items_list(request):
+    """لیست اقلام غذایی با جستجو و صفحه‌بندی"""
+    query = request.GET.get('q', '').strip()
+    
+    items = FoodItems.objects.all().order_by('food_name')
+    
+    # جستجو
+    if query:
+        items = items.filter(
+            Q(food_name__icontains=query) |
+            Q(foodsoft_code__icontains=query) |
+            Q(sepdar_code__icontains=query)
+        )
+    
+    # صفحه‌بندی
+    paginator = Paginator(items, 20)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'items': page_obj,
+        'query': query,
+        'total_count': items.count(),
+        'active_page': 'food_items',
+    }
+    return render(request, 'food_items/list.html', context)
+
+
+# ============================================
+# Create View
+# ============================================
+@login_required
+def food_items_create(request):
+    """ایجاد قلم غذایی جدید"""
+    if request.method == 'POST':
+        form = FoodItemsForm(request.POST)
+        if form.is_valid():
+            item = form.save()
+            messages.success(request, f'قلم «{item.food_name}» با موفقیت ایجاد شد')
+            return redirect('food_items_list')
+        else:
+            messages.error(request, 'لطفاً خطاهای فرم را برطرف کنید')
+    else:
+        form = FoodItemsForm()
+    
+    context = {
+        'form': form,
+        'title': 'افزودن قلم غذایی جدید',
+        'action': 'create',
+    }
+    return render(request, 'food_items/form.html', context)
+
+
+# ============================================
+# Update View
+# ============================================
+@login_required
+def food_items_edit(request, pk):
+    """ویرایش قلم غذایی"""
+    item = get_object_or_404(FoodItems, pk=pk)
+    
+    if request.method == 'POST':
+        form = FoodItemsForm(request.POST, instance=item)
+        if form.is_valid():
+            item = form.save()
+            messages.success(request, f'قلم «{item.food_name}» با موفقیت بروزرسانی شد')
+            return redirect('food_items_list')
+        else:
+            messages.error(request, 'لطفاً خطاهای فرم را برطرف کنید')
+    else:
+        form = FoodItemsForm(instance=item)
+    
+    context = {
+        'form': form,
+        'item': item,
+        'title': f'ویرایش «{item.food_name}»',
+        'action': 'edit',
+    }
+    return render(request, 'food_items/form.html', context)
+
+
+# ============================================
+# Delete View
+# ============================================
+@login_required
+@require_http_methods(["POST"])
+def food_items_delete(request, pk):
+    """حذف قلم غذایی (AJAX)"""
+    try:
+        item = get_object_or_404(FoodItems, pk=pk)
+        name = item.food_name
+        item.delete()
+        
+        logger.info(f"FoodItem '{name}' (ID: {pk}) deleted by {request.user}")
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'قلم «{name}» با موفقیت حذف شد'
+        })
+    except Exception as e:
+        logger.error(f"Error deleting FoodItem {pk}: {e}")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+# ============================================
+# Bulk Delete
+# ============================================
+@login_required
+@require_http_methods(["POST"])
+def food_items_bulk_delete(request):
+    """حذف گروهی"""
+    try:
+        data = json.loads(request.body)
+        ids = data.get('ids', [])
+        
+        if not ids:
+            return JsonResponse({
+                'success': False,
+                'error': 'هیچ موردی انتخاب نشده است'
+            }, status=400)
+        
+        deleted_count, _ = FoodItems.objects.filter(pk__in=ids).delete()
+        
+        logger.info(f"{deleted_count} FoodItems deleted by {request.user}")
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'{deleted_count} قلم با موفقیت حذف شد',
+            'deleted_count': deleted_count
+        })
+    except Exception as e:
+        logger.error(f"Error bulk deleting: {e}")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+# ============================================
+# Inline Update (AJAX)
+# ============================================
+@login_required
+@require_http_methods(["POST"])
+def food_items_inline_update(request, pk):
+    """بروزرسانی سریع یک فیلد (برای inline editing)"""
+    try:
+        item = get_object_or_404(FoodItems, pk=pk)
+        data = json.loads(request.body)
+        
+        field = data.get('field')
+        value = data.get('value', '').strip() or None
+        
+        # فیلدهای مجاز برای بروزرسانی
+        allowed_fields = ['food_name', 'foodsoft_code', 'sepdar_code']
+        if field not in allowed_fields:
+            return JsonResponse({
+                'success': False,
+                'error': 'فیلد نامعتبر'
+            }, status=400)
+        
+        # اعتبارسنجی food_name
+        if field == 'food_name' and not value:
+            return JsonResponse({
+                'success': False,
+                'error': 'نام غذا نمی‌تواند خالی باشد'
+            }, status=400)
+        
+        setattr(item, field, value)
+        item.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'با موفقیت بروزرسانی شد'
+        })
+    except Exception as e:
+        logger.error(f"Error inline update: {e}")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)

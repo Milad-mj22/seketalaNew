@@ -92,3 +92,11 @@ class SMSLog(models.Model):
         return f"{self.invoice_number} - {'ارسال شده' if self.is_sent else 'ارسال نشده'}"
 
 
+
+class FoodItems(models.Model):
+    food_name = models.CharField(max_length=100, unique=True)
+    foodsoft_code = models.CharField(max_length=50, unique=True, null=True, blank=True)
+    sepdar_code = models.CharField(max_length=50,  null=True, blank=True , db_index=True)
+
+    def __str__(self):
+        return self.food_name

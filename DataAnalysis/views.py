@@ -17,7 +17,7 @@ from otp_manager.models import OTPVar_Enum, SMS_Recievers, SMS_Template, SMSServ
 from otp_manager.service import send_sms
 from .folder_utils.sepidar_date import format_jalali_date, format_jalali_datetime, havale_format_jalali_datetime
 from .forms import DBUploadForm
-from .models import InvoiceItem, Sale,SMSLog
+from .models import FoodItems, InvoiceItem, Sale,SMSLog
 from persiantools.jdatetime import JalaliDate
 from user_management.utils import check_server
 from django.utils import timezone
@@ -632,6 +632,11 @@ def sepidar_download_excel(request):
 
         it_discount_flag = False
 
+        if inv.mandeh is None:
+            inv.mandeh = 0
+        if inv.hazine_peyk is None:
+            inv.hazine_peyk = 0
+
         if float(inv.mandeh)>0:
             if float(inv.mandeh)== float(inv.total_price)+float(inv.hazine_peyk)-float(inv.discount) :
                 tasvie_model = 2
@@ -649,7 +654,17 @@ def sepidar_download_excel(request):
             if it.food_name == '':
                 pass
             name = get_kname_by_kcod(it.food_name)
+            if name is None:
+                error_factors.append(f'Name Not Exist :{it.food_name} ' )  # Add invoice number to error list
+                continue
+
             code = get_code_by_name(name=name,date=selected_date)
+            if code is None:
+                print('Code not Exist for : ',name)
+                error_factors.append(f'Code Not Exist  for :{name} ' ) 
+                continue
+
+
             try:
                 _id = int(it.food_name)
             except:
@@ -693,6 +708,12 @@ def sepidar_download_excel(request):
                 errors.append(error_text)
                 invoice_has_error = True  # Mark invoice as having error
                 error_factors.append(f'{str(inv.invoice_number)} , {error_text}'  )  # Add invoice number to error list
+
+
+
+
+
+
 
 
                 

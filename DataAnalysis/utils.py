@@ -201,3 +201,40 @@ def check_personel_noght_order(ret, phones: list, data: dict):
     
     return (ret or new_ret), phones
     
+
+
+
+
+
+
+
+import re
+from rapidfuzz import fuzz, process
+
+
+def normalize_fa(text: str) -> str:
+    if not text:
+        return ""
+    text = str(text).strip()
+    text = text.replace("ي", "ی").replace("ك", "ک")
+    text = text.replace("ۀ", "ه").replace("ة", "ه")
+    text = text.replace("\u200c", " ")
+    text = text.replace("–", "-").replace("—", "-")
+    text = re.sub(r"[۰-۹]", lambda m: str(ord(m.group()) - ord("۰")), text)
+    text = re.sub(r"[٠-٩]", lambda m: str(ord(m.group()) - ord("٠")), text)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
+
+
+def top_matches(name: str, choices: list[str], limit: int = 5):
+    """تا limit کاندید برتر را برمیگرداند: [(matched_name, score), ...]"""
+    if not name or not choices:
+        return []
+    normalized = normalize_fa(name)
+    results = process.extract(
+        normalized,
+        choices,
+        scorer=fuzz.token_sort_ratio,
+        limit=limit,
+    )
+    return [(r[0], r[1]) for r in results]

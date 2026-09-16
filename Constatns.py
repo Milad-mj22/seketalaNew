@@ -5,3 +5,4 @@ class Constants:
     PWA_COLOR = "#FFD900"
     PWA_BACKGROUND_COLOR = '#FFFFFF'
     DEFAULT_PASSWORD = 'Sekehtala'
+    OLD_GET_FOOD_DATA = False

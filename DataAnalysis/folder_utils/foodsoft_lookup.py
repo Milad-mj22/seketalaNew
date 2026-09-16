@@ -1,8 +1,9 @@
 import pandas as pd
 from pathlib import Path
 import os
+from DataAnalysis.models import FoodItems
 from user_management.utils import check_server
-
+from Constatns import Constants
 # Load once at import time
 SERVER = check_server()
 if SERVER:
@@ -20,9 +21,22 @@ _KCOD_MAP = dict(zip(_df["kcod"], _df["kname"]))
 
 
 def get_kname_by_kcod(kcod: str) -> str | None:
-    if not kcod:
-        return None
-    return _KCOD_MAP.get(str(kcod).strip())
+    if Constants.OLD_GET_FOOD_DATA:
+        if not kcod:
+            return None
+        return _KCOD_MAP.get(str(kcod).strip())
+    else:
+        if not kcod:
+            return None 
+        name_obj = FoodItems.objects.filter(foodsoft_code=kcod)
+        if not name_obj.exists() :
+            print('Name Not Exist for code : ',kcod)
+            # error_factors.append(f'Name Not Exist :{it.food_name} ' )  # Add invoice number to error list
+            return None
+        name_obj = name_obj.first()
+        name = name_obj.food_name
+        return name
+
 
 
 

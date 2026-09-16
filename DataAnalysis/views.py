@@ -13,6 +13,7 @@ import numpy as np
 import xlrd
 import xlwt
 
+from api.views import low_stock_report_page
 from otp_manager.models import OTPVar_Enum, SMS_Recievers, SMS_Template, SMSServiceTemplate_Enum
 from otp_manager.service import send_sms
 from .folder_utils.sepidar_date import format_jalali_date, format_jalali_datetime, havale_format_jalali_datetime
@@ -2273,7 +2274,7 @@ def get_items_for_day(request):
 
 def items2buy(request):
     # Redirect to a specific URL
-    return redirect('http://37.148.86.157:1375//stock_manager/items2buy')
+    return low_stock_report_page(request=request)
         
         
         

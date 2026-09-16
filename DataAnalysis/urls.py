@@ -27,6 +27,7 @@ urlpatterns = [
     path('factors/<int:invoice_id>/update-payments/', views.update_payments, name='update_payments'),
     path('api/factors/', views.api_factors, name='api_factors'),
     path('api/get-date-items/', views.get_items_for_day, name='get_items_for_day'),
+    
     path('items2buy/', views.items2buy, name='items2buy'),
     
     

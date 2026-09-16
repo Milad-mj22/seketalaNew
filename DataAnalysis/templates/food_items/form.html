@@ -1,0 +1,121 @@
+{% extends "users/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    {% if action == 'create' %}
+                        <i class="bi bi-plus-circle text-success"></i>
+                    {% else %}
+                        <i class="bi bi-pencil text-primary"></i>
+                    {% endif %}
+                    {{ title }}
+                </h2>
+                <a href="{% url 'food_items_list' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-right"></i> بازگشت
+                </a>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <!-- Food Name -->
+                        <div class="mb-3">
+                            <label for="{{ form.food_name.id_for_label }}" class="form-label">
+                                {{ form.food_name.label }}
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.food_name }}
+                            {% if form.food_name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.food_name.errors }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                نام یکتا و الزامی است
+                            </div>
+                        </div>
+
+                        <!-- Foodsoft Code -->
+                        <div class="mb-3">
+                            <label for="{{ form.foodsoft_code.id_for_label }}" class="form-label">
+                                {{ form.foodsoft_code.label }}
+                            </label>
+                            {{ form.foodsoft_code }}
+                            {% if form.foodsoft_code.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.foodsoft_code.errors }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                کد یکتا در سیستم فودسافت
+                            </div>
+                        </div>
+
+                        <!-- Sepidar Code -->
+                        <div class="mb-3">
+                            <label for="{{ form.sepdar_code.id_for_label }}" class="form-label">
+                                {{ form.sepdar_code.label }}
+                            </label>
+                            {{ form.sepdar_code }}
+                            {% if form.sepdar_code.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.sepdar_code.errors }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                کد متناظر در سیستم سپیدار
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'food_items_list' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> انصراف
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i>
+                                {% if action == 'create' %}
+                                    ایجاد
+                                {% else %}
+                                    ذخیره تغییرات
+                                {% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Info Card (for edit) -->
+            {% if action == 'edit' and item %}
+            <div class="card mt-3 border-info">
+                <div class="card-body">
+                    <h6 class="text-muted">
+                        <i class="bi bi-info-circle"></i> اطلاعات سیستم
+                    </h6>
+                    <small class="text-muted">
+                        شناسه: <code>{{ item.id }}</code>
+                    </small>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

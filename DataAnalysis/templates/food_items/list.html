@@ -1,0 +1,432 @@
+{% extends "users/base.html" %}
+
+{% load humanize %}
+
+{% block title %}مدیریت اقلام غذایی{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">
+                <i class="bi bi-egg-fried text-primary"></i>
+                مدیریت اقلام غذایی
+            </h2>
+            <small class="text-muted">
+                مجموع: {{ total_count|intcomma }} قلم
+            </small>
+        </div>
+        <div>
+            <button type="button" 
+                    class="btn btn-danger me-2" 
+                    id="btnBulkDelete" 
+                    disabled>
+                <i class="bi bi-trash"></i>
+                حذف انتخاب‌شده‌ها
+                (<span id="selectedCount">0</span>)
+            </button>
+            <a href="{% url 'food_items_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i>
+                افزودن قلم جدید
+            </a>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Search -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" class="row g-2">
+                <div class="col-md-10">
+                    <input type="text" 
+                           name="q" 
+                           class="form-control" 
+                           placeholder="جستجو بر اساس نام، کد فودسافت یا کد سپیدار..."
+                           value="{{ query }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> جستجو
+                    </button>
+                </div>
+            </form>
+            {% if query %}
+                <div class="mt-2">
+                    <a href="{% url 'food_items_list' %}" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> پاک کردن جستجو
+                    </a>
+                    <span class="text-muted ms-2">
+                        {{ total_count|intcomma }} نتیجه یافت شد
+                    </span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0 align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="width: 40px;">
+                                <input type="checkbox" 
+                                       class="form-check-input" 
+                                       id="selectAll">
+                            </th>
+                            <th style="width: 60px;">#</th>
+                            <th>نام غذا</th>
+                            <th>کد فودسافت</th>
+                            <th>کد سپیدار</th>
+                            <th style="width: 180px;">عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr data-id="{{ item.id }}">
+                            <td>
+                                <input type="checkbox" 
+                                       class="form-check-input item-checkbox" 
+                                       value="{{ item.id }}">
+                            </td>
+                            <td>{{ forloop.counter0|add:page_obj.start_index }}</td>
+                            <td>
+                                <strong>{{ item.food_name }}</strong>
+                            </td>
+                            <td>
+                                {% if item.foodsoft_code %}
+                                    <code>{{ item.foodsoft_code }}</code>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.sepdar_code %}
+                                    <code>{{ item.sepdar_code }}</code>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'food_items_edit' item.id %}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i> ویرایش
+                                </a>
+                                <button type="button" 
+                                        class="btn btn-sm btn-outline-danger btn-delete"
+                                        data-id="{{ item.id }}"
+                                        data-name="{{ item.food_name }}">
+                                    <i class="bi bi-trash"></i> حذف
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-1"></i>
+                                <p class="mt-2">
+                                    {% if query %}
+                                        هیچ نتیجه‌ای برای «{{ query }}» یافت نشد
+                                    {% else %}
+                                        هنوز هیچ قلم غذایی ثبت نشده است
+                                    {% endif %}
+                                </p>
+                                {% if not query %}
+                                    <a href="{% url 'food_items_create' %}" class="btn btn-primary">
+                                        <i class="bi bi-plus-circle"></i> افزودن اولین قلم
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}">اولین</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">قبلی</a>
+                </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link">
+                    صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}
+                </span>
+            </li>
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">بعدی</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}">آخرین</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    تأیید حذف
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>آیا از حذف قلم «<strong id="deleteItemName"></strong>» اطمینان دارید؟</p>
+                <p class="text-muted small mb-0">این عملیات قابل بازگشت نیست.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">
+                    <i class="bi bi-trash"></i> حذف
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Delete Modal -->
+<div class="modal fade" id="bulkDeleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    تأیید حذف گروهی
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>آیا از حذف <strong id="bulkDeleteCount">0</strong> قلم انتخاب‌شده اطمینان دارید؟</p>
+                <p class="text-muted small mb-0">این عملیات قابل بازگشت نیست.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                <button type="button" class="btn btn-danger" id="confirmBulkDelete">
+                    <i class="bi bi-trash"></i> حذف همه
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast for notifications -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999;">
+    <div id="liveToast" class="toast" role="alert">
+        <div class="toast-header">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong class="me-auto">پیام سیستم</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body" id="toastMessage"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ============================================
+// CSRF Setup
+// ============================================
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const CSRF_TOKEN = getCookie('csrftoken');
+
+// ============================================
+// Toast Helper
+// ============================================
+function showToast(message, type = 'info') {
+    const toastEl = document.getElementById('liveToast');
+    const toastBody = document.getElementById('toastMessage');
+    
+    toastEl.className = `toast text-bg-${type}`;
+    toastBody.textContent = message;
+    
+    const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+    toast.show();
+}
+
+// ============================================
+// Select All
+// ============================================
+const selectAll = document.getElementById('selectAll');
+const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+const btnBulkDelete = document.getElementById('btnBulkDelete');
+const selectedCountEl = document.getElementById('selectedCount');
+
+function updateBulkButton() {
+    const checked = document.querySelectorAll('.item-checkbox:checked').length;
+    selectedCountEl.textContent = checked;
+    btnBulkDelete.disabled = checked === 0;
+}
+
+if (selectAll) {
+    selectAll.addEventListener('change', function() {
+        itemCheckboxes.forEach(cb => cb.checked = this.checked);
+        updateBulkButton();
+    });
+}
+
+itemCheckboxes.forEach(cb => {
+    cb.addEventListener('change', function() {
+        const allChecked = document.querySelectorAll('.item-checkbox:checked').length;
+        selectAll.checked = allChecked === itemCheckboxes.length;
+        selectAll.indeterminate = allChecked > 0 && allChecked < itemCheckboxes.length;
+        updateBulkButton();
+    });
+});
+
+// ============================================
+// Single Delete
+// ============================================
+let deleteItemId = null;
+
+document.querySelectorAll('.btn-delete').forEach(btn => {
+    btn.addEventListener('click', function() {
+        deleteItemId = this.dataset.id;
+        document.getElementById('deleteItemName').textContent = this.dataset.name;
+        new bootstrap.Modal(document.getElementById('deleteModal')).show();
+    });
+});
+
+document.getElementById('confirmDelete').addEventListener('click', async function() {
+    if (!deleteItemId) return;
+    
+    this.disabled = true;
+    this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> در حال حذف...';
+    
+    try {
+        const response = await fetch(`/api/food-items/${deleteItemId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': CSRF_TOKEN,
+                'Content-Type': 'application/json',
+            },
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+            showToast(data.message, 'success');
+            
+            // حذف ردیف از جدول
+            const row = document.querySelector(`tr[data-id="${deleteItemId}"]`);
+            if (row) {
+                row.style.transition = 'opacity 0.3s';
+                row.style.opacity = '0';
+                setTimeout(() => row.remove(), 300);
+            }
+        } else {
+            showToast(data.error || 'خطا در حذف', 'danger');
+        }
+    } catch (error) {
+        showToast('خطا در ارتباط با سرور', 'danger');
+        console.error(error);
+    } finally {
+        this.disabled = false;
+        this.innerHTML = '<i class="bi bi-trash"></i> حذف';
+    }
+});
+
+// ============================================
+// Bulk Delete
+// ============================================
+btnBulkDelete.addEventListener('click', function() {
+    const checked = document.querySelectorAll('.item-checkbox:checked').length;
+    document.getElementById('bulkDeleteCount').textContent = checked;
+    new bootstrap.Modal(document.getElementById('bulkDeleteModal')).show();
+});
+
+document.getElementById('confirmBulkDelete').addEventListener('click', async function() {
+    const ids = Array.from(document.querySelectorAll('.item-checkbox:checked'))
+        .map(cb => parseInt(cb.value));
+    
+    if (ids.length === 0) return;
+    
+    this.disabled = true;
+    this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> در حال حذف...';
+    
+    try {
+        const response = await fetch('{% url "food_items_bulk_delete" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': CSRF_TOKEN,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ ids: ids }),
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('bulkDeleteModal')).hide();
+            showToast(data.message, 'success');
+            
+            // حذف ردیف‌ها از جدول
+            ids.forEach(id => {
+                const row = document.querySelector(`tr[data-id="${id}"]`);
+                if (row) {
+                    row.style.transition = 'opacity 0.3s';
+                    row.style.opacity = '0';
+                    setTimeout(() => row.remove(), 300);
+                }
+            });
+            
+            // ریست
+            selectAll.checked = false;
+            updateBulkButton();
+        } else {
+            showToast(data.error || 'خطا در حذف', 'danger');
+        }
+    } catch (error) {
+        showToast('خطا در ارتباط با سرور', 'danger');
+        console.error(error);
+    } finally {
+        this.disabled = false;
+        this.innerHTML = '<i class="bi bi-trash"></i> حذف همه';
+    }
+});
+</script>
+{% endblock %}

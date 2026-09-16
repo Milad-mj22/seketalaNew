@@ -114,3 +114,5 @@ vosk
 openai==0.28.0
 # pydub
 # audioop-lts
+arabic-reshaper
+python-bidi

@@ -510,6 +510,7 @@ class FoodRawMaterial(models.Model):
     details = models.CharField(max_length=2000,default='',blank=True,null=True)
     discount = models.DecimalField(max_digits=5, decimal_places=2, default=0, blank=True, null=True)  # Discount percentage
     priority = models.IntegerField(default=0)  # New field for priority
+    is_new = models.BooleanField(default=False)  # مشخص می‌کند که محصول در این شعبه تمام شده است یا نه
 
 
     def __str__(self):

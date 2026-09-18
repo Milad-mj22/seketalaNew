@@ -299,7 +299,7 @@ from django.core.files.base import ContentFile
 import tempfile
 import wave
 import io
-from pydub import AudioSegment
+
 from datetime import datetime
 
 # ===== Configuration =====

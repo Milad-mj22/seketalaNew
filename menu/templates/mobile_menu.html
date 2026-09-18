@@ -1,0 +1,803 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>سکه طلا | منوی رستوران</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Vazirmatn', sans-serif;
+      background: linear-gradient(180deg, #faf6e9 0%, #f0ede3 100%);
+      color: #2e3b2e;
+      padding-bottom: 85px;
+      min-height: 100vh;
+    }
+
+    /* ===== بخش لوگو و اسم مجموعه - نسخه حرفه‌ای ===== */
+    .brand-section {
+      position: relative;
+      padding: 28px 20px 24px;
+      text-align: center;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(255, 235, 150, 0.6) 0%, transparent 50%),
+        radial-gradient(ellipse at 20% 100%, rgba(184, 134, 11, 0.4) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 100%, rgba(139, 105, 20, 0.4) 0%, transparent 50%),
+        linear-gradient(135deg, #6b4f0a 0%, #a07817 25%, #d4af37 50%, #a07817 75%, #6b4f0a 100%);
+      box-shadow:
+        0 8px 32px rgba(184, 134, 11, 0.4),
+        inset 0 -2px 8px rgba(0, 0, 0, 0.3),
+        inset 0 2px 4px rgba(255, 248, 201, 0.3);
+    }
+
+    /* نور متحرک روی سطح */
+    .brand-section::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 248, 201, 0.15) 40%,
+        rgba(255, 248, 201, 0.5) 50%,
+        rgba(255, 248, 201, 0.15) 60%,
+        transparent 100%
+      );
+      animation: sweepLight 5s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    @keyframes sweepLight {
+      0% { left: -100%; }
+      50% { left: 100%; }
+      100% { left: 100%; }
+    }
+
+    /* خطوط نوری ظریف */
+    .brand-section::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(
+          90deg,
+          transparent 0px,
+          transparent 60px,
+          rgba(255, 248, 201, 0.06) 60px,
+          rgba(255, 248, 201, 0.06) 62px
+        );
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ذرات درخشان شناور */
+    .particles {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .particle {
+      position: absolute;
+      bottom: -10px;
+      width: 4px;
+      height: 4px;
+      background: radial-gradient(circle, #fff8c9 0%, #ffd700 60%, transparent 100%);
+      border-radius: 50%;
+      box-shadow: 0 0 8px 2px rgba(255, 215, 0, 0.8);
+      opacity: 0;
+      animation: floatUp linear infinite;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) scale(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+        transform: translateY(-20%) scale(1);
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-120px) scale(0.5);
+        opacity: 0;
+      }
+    }
+
+    .brand-content {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* لوگو با افکت شیشه‌ای */
+    .brand-logo {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      border: 3px solid rgba(255, 248, 201, 0.9);
+      box-shadow:
+        0 0 30px rgba(255, 215, 0, 0.9),
+        0 0 60px rgba(255, 215, 0, 0.5),
+        inset 0 0 20px rgba(255, 248, 201, 0.6),
+        inset 0 -6px 12px rgba(139, 105, 20, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255, 248, 201, 0.4), transparent 50%),
+        linear-gradient(135deg, #8b6914, #d4af37, #8b6914);
+      margin-bottom: 12px;
+      overflow: hidden;
+      position: relative;
+      animation: pulseLogo 3s ease-in-out infinite;
+    }
+
+
+
+    @keyframes logoShine {
+      0%, 100% { transform: translate(-30%, -30%); }
+      50% { transform: translate(30%, 30%); }
+    }
+
+    @keyframes pulseLogo {
+      0%, 100% {
+        box-shadow:
+          0 0 30px rgba(255, 215, 0, 0.9),
+          0 0 60px rgba(255, 215, 0, 0.5),
+          inset 0 0 20px rgba(255, 248, 201, 0.6),
+          inset 0 -6px 12px rgba(139, 105, 20, 0.5);
+      }
+      50% {
+        box-shadow:
+          0 0 45px rgba(255, 215, 0, 1),
+          0 0 90px rgba(255, 215, 0, 0.7),
+          inset 0 0 30px rgba(255, 248, 201, 0.8),
+          inset 0 -6px 12px rgba(139, 105, 20, 0.5);
+      }
+    }
+
+    .brand-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand-logo i {
+      font-size: 2.4rem;
+      color: #fff8c9;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 1), 0 0 10px rgba(255, 255, 255, 0.8);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* اسم برند با درخشش */
+    .brand-name {
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 4px;
+      margin: 0;
+      line-height: 1.2;
+      background: linear-gradient(
+        180deg,
+        #ffffff 0%,
+        #fff8c9 30%,
+        #ffd700 50%,
+        #fff8c9 70%,
+        #ffffff 100%
+      );
+      background-size: 100% 200%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: nameGlow 3s ease-in-out infinite;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+    }
+
+    @keyframes nameGlow {
+      0%, 100% {
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 20px rgba(255, 215, 0, 0.6));
+      }
+      50% {
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 35px rgba(255, 215, 0, 1));
+      }
+    }
+
+    /* زیرعنوان با خطوط تزئینی */
+    .brand-subtitle {
+      font-size: 0.85rem;
+      color: #fff8c9;
+      letter-spacing: 8px;
+      margin-top: 10px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    }
+
+    .brand-subtitle::before,
+    .brand-subtitle::after {
+      content: "";
+      width: 30px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #fff8c9, transparent);
+    }
+
+    /* ===== دسته‌بندی‌ها (Sticky) ===== */
+    .categories-wrapper {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: linear-gradient(135deg, #b8860b 0%, #d4af37 100%);
+      box-shadow: 0 6px 20px rgba(184, 134, 11, 0.4);
+      border-bottom: 3px solid #fff8c9;
+    }
+
+    .categories {
+      display: flex;
+      gap: 10px;
+      padding: 12px 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      white-space: nowrap;
+      scroll-behavior: smooth;
+    }
+
+    .categories::-webkit-scrollbar {
+      display: none;
+    }
+
+    .category-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(139, 105, 20, 0.5);
+      border: 2px solid rgba(255, 248, 201, 0.5);
+      border-radius: 16px;
+      padding: 10px 16px;
+      min-width: 88px;
+      color: #fff8c9;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      flex-shrink: 0;
+      backdrop-filter: blur(5px);
+    }
+
+    .category-item .cat-icon {
+      font-size: 1.5rem;
+      margin-bottom: 5px;
+      transition: transform 0.25s;
+      filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+    }
+
+    .category-item:hover {
+      background: rgba(255, 248, 201, 0.25);
+      transform: translateY(-2px);
+    }
+
+    .category-item.active {
+      background: linear-gradient(135deg, #fff8c9, #ffe98a);
+      color: #7a5c00;
+      border-color: #fff;
+      box-shadow: 0 6px 20px rgba(255, 215, 0, 0.7), inset 0 -2px 5px rgba(184, 134, 11, 0.2);
+    }
+
+    .category-item.active .cat-icon {
+      transform: scale(1.2);
+    }
+
+    /* ===== محتوای منو ===== */
+    .menu-container {
+      padding: 20px 12px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .category-section {
+      scroll-margin-top: 100px;
+      padding-bottom: 10px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 10px 0 12px;
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #7a5c00;
+      letter-spacing: 0.5px;
+      text-shadow: 0 1px 2px rgba(212, 175, 55, 0.3);
+    }
+
+    .section-title::before,
+    .section-title::after {
+      content: "";
+      flex: 1;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #d4af37, #b8860b, #d4af37, transparent);
+      border-radius: 4px;
+    }
+
+    .section-title .section-icon {
+      font-size: 1.8rem;
+      filter: drop-shadow(0 2px 4px rgba(184, 134, 11, 0.4));
+    }
+
+    /* ===== کارت محصول ===== */
+    .menu-card {
+      background: linear-gradient(135deg, #ffffff 0%, #fdf8e8 100%);
+      border: 2px solid #e8d68a;
+      border-radius: 22px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 8px 20px rgba(184, 134, 11, 0.15), inset 0 1px 0 #fff;
+      color: #2e3b2e;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 12px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .menu-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 6px;
+      height: 100%;
+      background: linear-gradient(180deg, #ffd700, #b8860b);
+    }
+
+    .menu-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(184, 134, 11, 0.3);
+      border-color: #d4af37;
+    }
+
+    .card-img {
+      width: 95px;
+      height: 95px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #d4af37;
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #f5f0d8, #e8d68a);
+    }
+
+    .card-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      text-align: right;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #7a5c00;
+      margin-bottom: 2px;
+    }
+
+    .card-desc {
+      font-size: 0.82rem;
+      line-height: 1.55;
+      color: #6b6b5a;
+      margin-bottom: 4px;
+      font-weight: 400;
+    }
+
+    .card-price {
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: #b8860b;
+      align-self: flex-end;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-price .old-price {
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: line-through;
+      color: #a89b7a;
+    }
+
+    .card-price .discounted {
+      color: #c6613f;
+    }
+
+    .card-price .currency {
+      font-size: 0.75rem;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+
+    /* برچسب ناموجود */
+    .sold-out-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: linear-gradient(135deg, #8b0000, #cc0000);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1.5px solid #ffd700;
+      box-shadow: 0 0 12px rgba(255, 0, 0, 0.5);
+      transform: rotate(-8deg);
+      z-index: 5;
+    }
+
+    .menu-card.sold-out {
+      opacity: 0.55;
+      filter: grayscale(0.5);
+    }
+
+    .logo-watermark {
+      position: absolute;
+      left: 14px;
+      bottom: 10px;
+      font-size: 0.65rem;
+      color: rgba(184, 134, 11, 0.4);
+      font-style: italic;
+      font-weight: 700;
+      pointer-events: none;
+      letter-spacing: 1px;
+    }
+
+    /* ===== نوار پایین ===== */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(135deg, #fff8c9, #f5e6a8);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      border-top: 3px solid #d4af37;
+      box-shadow: 0 -6px 20px rgba(184, 134, 11, 0.25);
+      z-index: 30;
+    }
+
+    .bottom-btn {
+      background: linear-gradient(135deg, #d4af37, #b8860b);
+      border: 2px solid #fff8c9;
+      border-radius: 50%;
+      width: 58px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1.4rem;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(184, 134, 11, 0.5);
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .bottom-btn:hover {
+      background: linear-gradient(135deg, #b8860b, #8b6914);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(184, 134, 11, 0.7);
+    }
+
+    .bottom-btn:active {
+      transform: scale(0.94);
+    }
+
+    .bottom-btn .badge-count {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #c6613f;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      min-width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #fff8c9;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 400px) {
+      .brand-section { padding: 20px 16px 18px; }
+      .brand-name { font-size: 2.1rem; letter-spacing: 2px; }
+      .brand-logo { width: 68px; height: 68px; }
+      .brand-logo i { font-size: 2rem; }
+      .brand-subtitle { font-size: 0.7rem; letter-spacing: 5px; }
+      .brand-subtitle::before,
+      .brand-subtitle::after { width: 18px; }
+      .card-img { width: 78px; height: 78px; }
+      .card-title { font-size: 1.05rem; }
+      .card-desc { font-size: 0.72rem; }
+      .card-price { font-size: 1rem; }
+      .category-item { min-width: 78px; padding: 8px 12px; font-size: 0.75rem; }
+      .category-item .cat-icon { font-size: 1.3rem; }
+      .section-title { font-size: 1.25rem; }
+      .bottom-btn { width: 52px; height: 52px; font-size: 1.2rem; }
+    }
+
+    @media (min-width: 768px) {
+      .menu-container { padding: 20px 32px 8px; }
+      .brand-name { font-size: 3.4rem; }
+      .brand-logo { width: 95px; height: 95px; }
+      .brand-logo i { font-size: 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== BRAND ===== -->
+  <div class="brand-section">
+    <div class="particles">
+      <span class="particle" style="left: 8%; animation-duration: 4s; animation-delay: 0s;"></span>
+      <span class="particle" style="left: 18%; animation-duration: 5s; animation-delay: 0.5s;"></span>
+      <span class="particle" style="left: 28%; animation-duration: 4.5s; animation-delay: 1s;"></span>
+      <span class="particle" style="left: 38%; animation-duration: 6s; animation-delay: 1.5s;"></span>
+      <span class="particle" style="left: 48%; animation-duration: 4.8s; animation-delay: 0.3s;"></span>
+      <span class="particle" style="left: 58%; animation-duration: 5.5s; animation-delay: 2s;"></span>
+      <span class="particle" style="left: 68%; animation-duration: 4.2s; animation-delay: 0.8s;"></span>
+      <span class="particle" style="left: 78%; animation-duration: 5.8s; animation-delay: 1.2s;"></span>
+      <span class="particle" style="left: 88%; animation-duration: 4.6s; animation-delay: 2.5s;"></span>
+      <span class="particle" style="left: 95%; animation-duration: 5.2s; animation-delay: 1.8s;"></span>
+    </div>
+
+    <div class="brand-content">
+      <div class="brand-logo">
+        {% if logo %}
+          <img src="{{ logo }}" alt="سکه طلا">
+        {% else %}
+          <img src="{% static 'icons/logo.svg' %}" alt="لوگو سکه طلا">
+        {% endif %}
+      </div>
+      <div class="brand-subtitle">طعم اصیل • کیفیت طلایی</div>
+    </div>
+  </div>
+
+  <!-- ===== CATEGORIES (Sticky) ===== -->
+  <div class="categories-wrapper">
+    <div class="categories" id="categoriesBar">
+      {% for category in categories %}
+        <div class="category-item {% if forloop.first %}active{% endif %}"
+             data-category="{{ category.id }}">
+          <span class="cat-icon">{{ category.icon }}</span>
+          {{ category.title }}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ===== MENU CONTENT ===== -->
+  <main class="menu-container" id="menuContainer">
+    {% for category in categories %}
+      <div class="category-section" data-category="{{ category.id }}" id="section-{{ category.id }}">
+        <div class="section-title">
+          <span class="section-icon">{{ category.icon }}</span>
+          {{ category.title }}
+        </div>
+
+        {% for product in category.items %}
+          <div class="menu-card {% if product.sold_out %}sold-out{% endif %}"
+               id="product-{{ product.id }}"
+               data-product-id="{{ product.id }}"
+               data-name="{{ product.name_new|default:product.name }}">
+            {% if product.sold_out %}
+              <span class="sold-out-badge">ناموجود</span>
+            {% endif %}
+
+            {% if product.image %}
+              <img class="card-img" src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% else %}
+              <img class="card-img" src="{% static 'pic/logo.png' %}" alt="{{ product.name }}">
+            {% endif %}
+
+            <div class="card-content">
+              <div class="card-title">{{ product.name_new|default:product.name }}</div>
+              <div class="card-desc">{{ product.details }}</div>
+              <div class="card-price">
+                {% if product.price != product.discounted_price %}
+                  <span class="old-price price">{{ product.price }}</span>
+                  <span class="discounted price">{{ product.discounted_price }}</span>
+                  <span class="currency">تومان</span>
+                {% else %}
+                  <span class="price">{{ product.price }}</span>
+                  <span class="currency">تومان</span>
+                {% endif %}
+              </div>
+            </div>
+
+          </div>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </main>
+
+  <!-- ===== BOTTOM BAR ===== -->
+  <div class="bottom-bar">
+    <button class="bottom-btn" onclick="window.location.href='tel:+98'">
+      <i class="fas fa-phone-alt"></i>
+    </button>
+    <button class="bottom-btn" id="cartBtn">
+      <i class="fas fa-shopping-cart"></i>
+      <span class="badge-count" id="cartCount" style="display:none;">0</span>
+    </button>
+  </div>
+
+  <script>
+    // ===== فرمت قیمت =====
+    function formatPrice(price) {
+      return price.toLocaleString('fa-IR');
+    }
+
+    window.addEventListener('load', function () {
+      document.querySelectorAll('.price').forEach(function (el) {
+        const raw = el.textContent.replace(/,/g, '').trim();
+        const num = parseFloat(raw);
+        if (!isNaN(num)) {
+          el.textContent = formatPrice(num);
+        }
+      });
+    });
+
+    // ===== Scroll Spy + Smooth Scroll =====
+    const categoryItems = document.querySelectorAll('.category-item');
+    const categorySections = document.querySelectorAll('.category-section');
+    const categoriesBar = document.getElementById('categoriesBar');
+
+    // پرچم قفل موقت (برای جلوگیری از تداخل بین کلیک و اسکرول)
+    let isClickScrolling = false;
+    let clickScrollTimer = null;
+
+    // ---- 1) کلیک روی دسته → اسکرول نرم به بخش مربوطه ----
+    categoryItems.forEach(item => {
+      item.addEventListener('click', function () {
+        const catId = this.getAttribute('data-category');
+        const targetSection = document.getElementById('section-' + catId);
+        if (!targetSection) return;
+
+        isClickScrolling = true;
+
+        // فعال کردن فوری دکمه کلیک‌شده
+        categoryItems.forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+
+        // اسکرول افقی نوار برای دیدن دکمه
+        this.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+        // محاسبه آفست به خاطر نوار چسبان
+        const wrapperHeight = document.querySelector('.categories-wrapper').offsetHeight;
+        const sectionTop = targetSection.offsetTop - wrapperHeight - 8;
+
+        window.scrollTo({
+          top: sectionTop,
+          behavior: 'smooth'
+        });
+
+        // آزاد کردن قفل بعد از اسکرول
+        clearTimeout(clickScrollTimer);
+        clickScrollTimer = setTimeout(() => {
+          isClickScrolling = false;
+        }, 900);
+      });
+    });
+
+    // ---- 2) Scroll Spy با IntersectionObserver ----
+    const observerOptions = {
+      root: null,
+      rootMargin: '-120px 0px -55% 0px',
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      if (isClickScrolling) return;
+
+      // از بین ورودی‌های visible، بالاترین رو انتخاب کن
+      const visible = entries
+        .filter(e => e.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+      if (visible.length > 0) {
+        const activeId = visible[0].target.getAttribute('data-category');
+        updateActiveCategory(activeId);
+      }
+    }, observerOptions);
+
+    categorySections.forEach(section => observer.observe(section));
+
+    // ---- 3) به‌روزرسانی دکمه فعال ----
+    function updateActiveCategory(catId) {
+      let changed = false;
+
+      categoryItems.forEach(item => {
+        const isActive = item.getAttribute('data-category') === catId;
+        if (isActive && !item.classList.contains('active')) {
+          changed = true;
+        }
+        item.classList.toggle('active', isActive);
+      });
+
+      // اسکرول افقی نوار به دکمه فعال
+      if (changed) {
+        const activeItem = document.querySelector(`.category-item[data-category="${catId}"]`);
+        if (activeItem) {
+          activeItem.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+            inline: 'center'
+          });
+        }
+      }
+    }
+
+    // ===== WebSocket ناموجودی =====
+    const socket = new WebSocket("ws://" + window.location.host + "/ws/menu_updates/");
+
+    socket.onmessage = function (event) {
+      const data = JSON.parse(event.data);
+      const soldOutName = data.menu_status.name;
+
+      document.querySelectorAll(".menu-card").forEach(card => {
+        const titleEl = card.querySelector(".card-title");
+        if (titleEl && titleEl.textContent.trim() === soldOutName) {
+          card.classList.add("sold-out");
+          if (!card.querySelector(".sold-out-badge")) {
+            const badge = document.createElement("span");
+            badge.textContent = "ناموجود";
+            badge.classList.add("sold-out-badge");
+            card.appendChild(badge);
+          }
+        }
+      });
+    };
+  </script>
+
+</body>
+</html>

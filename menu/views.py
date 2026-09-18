@@ -111,3 +111,73 @@ def set_sold_out(request):
     return render(request, 'sold_out.html', {'form': form,'sold_out_items':sold_out_items})
 
 
+
+
+
+
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .models import FoodRawMaterial
+
+
+def show_mobile_menu(request):
+    """
+    Single menu view with categorized sections for mobile-first UI.
+    """
+    def clean_name(items, remove_words):
+        for item in items:
+            name = item.name
+            for w in remove_words:
+                name = name.replace(w, '').strip()
+            item.name_new = name
+        return items
+
+    # Pizza
+    pizza_single = list(
+        FoodRawMaterial.objects
+        .filter(mother__name='پیتزا تکنفره')
+        .order_by('-priority')
+        .reverse()
+    )
+    pizza_double = list(
+        FoodRawMaterial.objects
+        .filter(mother__name='پیتزا دونفره')
+        .order_by('-priority')
+        .reverse()
+    )
+    clean_name(pizza_single, ['تکنفره'])
+    clean_name(pizza_double, ['دونفره'])
+
+    # Sandwich / Burger / Others
+    sandwichs = list(
+        FoodRawMaterial.objects
+        .filter(mother__name__in=['ساندویچ'])
+        .order_by('-priority')
+        .reverse()
+    )
+    humbergers = list(
+        FoodRawMaterial.objects
+        .filter(mother__name__in=['همبرگر'])
+        .order_by('-priority')
+        .reverse()
+    )
+    others = list(
+        FoodRawMaterial.objects
+        .filter(mother__name__in=['سالاد', 'سیب زمینی'])
+        .order_by('-priority')
+    )
+    clean_name(sandwichs, ['ساندویچ'])
+    clean_name(humbergers, ['همبرگر'])
+
+    # 👇 Structure used by template to build tabs dynamically
+    categories = [
+        {'id': 'pizza-single', 'title': 'پیتزا تک‌نفره', 'icon': '🍕', 'items': pizza_single},
+        {'id': 'pizza-double', 'title': 'پیتزا دو‌نفره', 'icon': '🍕', 'items': pizza_double},
+        {'id': 'sandwich',     'title': 'ساندویچ',        'icon': '🥪', 'items': sandwichs},
+        {'id': 'burger',       'title': 'همبرگر',         'icon': '🍔', 'items': humbergers},
+        {'id': 'others',       'title': 'سالاد و سیب‌زمینی', 'icon': '🥗', 'items': others},
+    ]
+    # Remove empty categories
+    categories = [c for c in categories if c['items']]
+
+    return render(request, 'mobile_menu.html', {'categories': categories})

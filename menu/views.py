@@ -172,7 +172,7 @@ def show_mobile_menu(request):
     # 👇 Structure used by template to build tabs dynamically
     categories = [
         {'id': 'pizza-single', 'title': 'پیتزا تک‌نفره', 'icon': '🍕', 'items': pizza_single},
-        {'id': 'pizza-double', 'title': 'پیتزا دو‌نفره', 'icon': '🍕', 'items': pizza_double},
+        {'id': 'pizza-double', 'title': 'پیتزا دو‌نفره', 'icon': '🍕👥', 'items': pizza_double},
         {'id': 'sandwich',     'title': 'ساندویچ',        'icon': '🥪', 'items': sandwichs},
         {'id': 'burger',       'title': 'همبرگر',         'icon': '🍔', 'items': humbergers},
         {'id': 'others',       'title': 'سالاد و سیب‌زمینی', 'icon': '🥗', 'items': others},

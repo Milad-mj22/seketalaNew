@@ -500,8 +500,8 @@ class mother_food(models.Model):
 
 class FoodRawMaterial(models.Model):
     
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True,blank=True,null=True)
+    updated_at = models.DateTimeField(auto_now=True,blank=True,null=True)
     mother = models.ForeignKey(mother_food, on_delete= models.CASCADE,related_name='mother_food_id',blank=True,null=True)
     name = models.CharField(max_length=200)
     data = models.JSONField(blank=True,null=True)

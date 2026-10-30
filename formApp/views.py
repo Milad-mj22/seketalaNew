@@ -17,6 +17,8 @@ from user_management.utils import check_server
 from users.models import Profile
 from .models import CustomForm, FormField, FormSubmission, FormSubmissionData, NightlyFormHistory
 from django.contrib.auth.models import User
+from django.conf import settings
+
 
 @login_required
 def create_form(request):
@@ -478,6 +480,7 @@ from io import BytesIO
 import json
 from openpyxl.utils import column_index_from_string
 
+
 class NightlyFormListView(ListView):
     model = NightlyFormModel
     template_name = 'nightly_forms_list.html'
@@ -485,9 +488,52 @@ class NightlyFormListView(ListView):
     ordering = ['-created_at']
     paginate_by = 30
 
-    def get_queryset(self):
-        return NightlyFormModel.objects.order_by('-created_at')[:30]
+    def get_date_range(self):
+        """Parse start/end dates from GET params, defaulting to last 30 days."""
+        today = timezone.now().date()
+        start_str = self.request.GET.get('start_date')
+        end_str = self.request.GET.get('end_date')
 
+        try:
+            start_date = datetime.strptime(start_str, '%Y-%m-%d').date() if start_str else today - timedelta(days=29)
+        except ValueError:
+            start_date = today - timedelta(days=29)
+
+        try:
+            end_date = datetime.strptime(end_str, '%Y-%m-%d').date() if end_str else today
+        except ValueError:
+            end_date = today
+
+        return start_date, end_date
+
+    def get_queryset(self):
+        start_date, end_date = self.get_date_range()
+        start_dt = datetime.combine(start_date, datetime.min.time())
+        end_dt = datetime.combine(end_date, datetime.max.time())
+
+        # Only make aware if project uses timezone-aware datetimes
+        if settings.USE_TZ:
+            start_dt = timezone.make_aware(start_dt)
+            end_dt = timezone.make_aware(end_dt)
+
+        return NightlyFormModel.objects.filter(
+            created_at__range=(start_dt, end_dt)
+        ).order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        start_date, end_date = self.get_date_range()
+        today = timezone.now().date()
+        context['start_date'] = start_date.strftime('%Y-%m-%d')
+        context['end_date'] = end_date.strftime('%Y-%m-%d')
+        context['today'] = today.strftime('%Y-%m-%d')
+        context['default_start'] = (today - timedelta(days=29)).strftime('%Y-%m-%d')
+        context['today_7'] = (today - timedelta(days=6)).strftime('%Y-%m-%d')
+        context['today_90'] = (today - timedelta(days=89)).strftime('%Y-%m-%d')
+        context['total_count'] = self.get_queryset().count()
+        return context
+
+    
 def download_excel(request, form_id):
     form = get_object_or_404(NightlyFormModel, id=form_id)
     
